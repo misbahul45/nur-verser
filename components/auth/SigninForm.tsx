@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import Link from 'next/link'
 import { SigninSchema as formSchema } from '@/schemas/auth.schema'
-import { signinAction } from '@/actions/auth'
+import { signinAction } from '@/actions/auth.actions'
 import { toast } from 'sonner'
 
 export default function SigninForm() {

@@ -19,7 +19,7 @@ import Link from 'next/link'
 import { PasswordStrengthText } from '@/types'
 import { SignupSchema as formSchema } from '@/schemas/auth.schema'
 import { toast } from 'sonner'
-import { signupAction } from '@/actions/auth'
+import { signupAction } from '@/actions/auth.actions'
 import { signIn } from 'next-auth/react'
 
 export default function SignupForm() {

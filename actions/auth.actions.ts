@@ -27,7 +27,7 @@ export const signupAction = async (data: z.infer<typeof SignupSchema>) => {
     await signIn('credentials', {
       email: data.email,
       password: data.password,
-      redirectTo:'/dashboard',
+      redirect: false
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -57,7 +57,7 @@ export const signinAction = async (data: z.infer<typeof SigninSchema>) => {
     await signIn('credentials', {
       email: data.email,
       password: data.password,
-      redirectTo:'/dashboard',
+      redirect: false
     })
   } catch (error) {
     if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {

@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useRouter } from 'next/navigation'
-import { signoutAction } from '@/actions/auth'
+import { signoutAction } from '@/actions/auth.actions'
 
 const AppNavbar = ({ user = null }: { user: any | null }) => {
   const [pathname] = useState('/')
