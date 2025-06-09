@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Nur Quran',
     description: 'Tingkatkan pengalaman belajar Al-Qur\'an Anda dengan Nur Quran.',
-    url: 'https://nurquran.com',
+    url: 'https://nur-quran.vercel.app/',
     siteName: 'Nur Quran',
     images: [
       {
