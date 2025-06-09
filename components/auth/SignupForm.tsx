@@ -247,7 +247,7 @@ const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
         <p className="text-gray-600">
           Already have an account?{' '}
           <Link href="/signin" className="text-emerald-600 hover:text-emerald-700 font-semibold transition-colors">
-            Sign in here
+            Sign in
           </Link>
         </p>
       </div>

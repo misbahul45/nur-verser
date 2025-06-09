@@ -94,13 +94,15 @@ export const signinAction = async (data: z.infer<typeof SigninSchema>): Promise<
       }
     }
     
-    return { success: false, error: "An error occurred during sign in" }
+    return { success: false, error: (error as Error).message }
   }
 }
 
 export const signoutAction = async (): Promise<ActionResult> => {
   try {
-    await signOut()
+    await signOut({
+      redirectTo:'/signin'
+    })
     return { success: true }
   } catch (error) {
     console.error('Signout error:', error)
