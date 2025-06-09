@@ -12,7 +12,7 @@ export default function ClientWrapper({ children }: ClientWrapperProps) {
   return (
     <NuqsAdapter>
       <SidebarProvider>
-        <Toaster position="top-right" />
+        <Toaster position="top-center" />
         {children}
       </SidebarProvider>
     </NuqsAdapter>
