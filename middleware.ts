@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getUser } from './actions'
+import { fetchSession } from './actions'
+
 
 const publicRoutes = ['/', '/signin', '/signup']
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const token =await getUser()
+  const token =await fetchSession()
   const isPublicRoute = publicRoutes.includes(pathname)
 
   if (token && isPublicRoute) {

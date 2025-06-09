@@ -21,6 +21,7 @@ import { SignupSchema as formSchema } from '@/schemas/auth.schema'
 import { toast } from 'sonner'
 import { signupAction } from '@/actions/auth'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 
 export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -67,6 +68,11 @@ const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
     console.log('Sign up data:', data)
     try {
         await signupAction(data)
+        await signIn('credentials', {
+          email: data.email,
+          password: data.password,
+          redirect:false,
+        })
         toast.success('Sign up successful')
         form.reset()
         router.push('/dashboard')

@@ -4,10 +4,10 @@ import './globals.css';
 import AppSidebar from '@/components/layout/AppSidebar';
 import AppNavbar from '@/components/layout/AppNavbar';
 import Footer from '@/components/layout/Footer';
-import { getUser } from '@/actions';
+import { fetchSession } from '@/actions';
 import ClientWrapper from '@/components/layout/ClientWrapper';
 import ButtonToTop from '@/components/layout/ButtonToTop';
-import { Suspense } from 'react';
+import { Suspense } from 'react';;
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -58,25 +58,25 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getUser();
+  const session = await fetchSession();
 
   return (
     <html lang="id">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}>
         <ClientWrapper>
-          <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background to-muted/20">
-            <AppSidebar />
-            <div className="flex-1 flex flex-col w-full">
-              <Suspense fallback={null}>
-                <AppNavbar user={user} />
-              </Suspense>
-              <main className="flex-1 w-full overflow-y-auto">
-                <div className="w-full p-6 space-y-6">{children}</div>
-              </main>
-              <Footer />
+            <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background to-muted/20">
+              <AppSidebar />
+              <div className="flex-1 flex flex-col w-full">
+                <Suspense fallback={null}>
+                  <AppNavbar user={session?.user} />
+                </Suspense>
+                <main className="flex-1 w-full overflow-y-auto">
+                  <div className="w-full p-6 space-y-6">{children}</div>
+                </main>
+                <Footer />
+              </div>
             </div>
-          </div>
-          <ButtonToTop />
+            <ButtonToTop />
         </ClientWrapper>
       </body>
     </html>

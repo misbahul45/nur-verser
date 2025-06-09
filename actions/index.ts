@@ -1,11 +1,10 @@
 'use server'
-
 import { auth } from "@/auth"
 
-export const getUser=async()=>{
+export const fetchSession=async()=>{
     try {
         const session=await auth()
-        return session?.user
+        return session;
     } catch (error) {
        return null 
     }
