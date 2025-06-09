@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import { getUser } from '@/actions';
 import ClientWrapper from '@/components/layout/ClientWrapper';
 import ButtonToTop from '@/components/layout/ButtonToTop';
+import { Suspense } from 'react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -20,6 +21,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Nur Quran',
+  metadataBase: new URL('https://nur-quran.vercel.app'),
   description: 'Aplikasi pembelajaran Al-Qur\'an interaktif dengan fitur membaca, menghafal, dan keterlibatan komunitas.',
   keywords: ['Al-Qur\'an', 'pembelajaran', 'hafalan', 'tafsir', 'Islam', 'komunitas'],
   icons: {
@@ -65,7 +67,9 @@ export default async function RootLayout({
           <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background to-muted/20">
             <AppSidebar />
             <div className="flex-1 flex flex-col w-full">
-              <AppNavbar user={user} />
+              <Suspense fallback={null}>
+                <AppNavbar user={user} />
+              </Suspense>
               <main className="flex-1 w-full overflow-y-auto">
                 <div className="w-full p-6 space-y-6">{children}</div>
               </main>

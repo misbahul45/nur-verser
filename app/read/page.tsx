@@ -1,6 +1,7 @@
 import ListSurat from "@/components/read/ListSurat";
 import { fetchSuratList } from "@/lib/alquran";
 import { BookOpen } from "lucide-react";
+import { Suspense } from "react"; 
 
 const page = async () => {
   const res = await fetchSuratList();
@@ -25,12 +26,14 @@ const page = async () => {
               </div>
             </div>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-                Jelajahi koleksi lengkap surah dalam Al-Qur'an dengan lantunan audio,
-                deskripsi mendalam, dan teks Arab yang indah.
+              Jelajahi koleksi lengkap surah dalam Al-Qur'an dengan lantunan audio,
+              deskripsi mendalam, dan teks Arab yang indah.
             </p>
           </div>
 
-          <ListSurat allSurat={allSurat} />
+          <Suspense fallback={<div>Loading surah list...</div>}>
+            <ListSurat allSurat={allSurat} />
+          </Suspense>
 
           <div className="text-center mt-12 p-8 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg">
             <div className="flex items-center justify-center gap-2 mb-3">

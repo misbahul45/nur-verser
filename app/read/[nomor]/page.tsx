@@ -1,30 +1,41 @@
-import AudioPlayer from "@/components/read/AudioPlayer"
-import { fetchSuratDetail, fetchTafsirDetail } from "@/lib/alquran"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { SurahData } from "@/types"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft } from "lucide-react"
-import Ayat from "@/components/read/Ayat"
+import AudioPlayer from "@/components/read/AudioPlayer";
+import { fetchSuratDetail, fetchTafsirDetail } from "@/lib/alquran";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SurahData } from "@/types";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import { Suspense } from "react";
+import Ayat from "@/components/read/Ayat";
+import { Metadata } from "next";
 
-interface PageProps {
-  params: Promise<{
-    nomor: string
-  }>
+// Define the props type for the Page component
+type PageProps = {
+  params: Promise<{ nomor: string }>;
+};
+
+// Define the props type for generateMetadata
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { nomor } = await params; // Resolve the params promise
+  const dataSurah = await fetchSuratDetail(nomor);
+  return {
+    title: `Surah ${dataSurah.namaLatin}`,
+    description: dataSurah.deskripsi,
+  };
 }
 
-const getSurah = async (nomor: string) : Promise<SurahData> => {
-  const [dataSurah, dataTafsir] = await Promise.all([fetchSuratDetail(nomor), fetchTafsirDetail(nomor)])
+const getSurah = async (nomor: string): Promise<SurahData> => {
+  const [dataSurah, dataTafsir] = await Promise.all([fetchSuratDetail(nomor), fetchTafsirDetail(nomor)]);
 
   return {
     surah: dataSurah.data,
     tafsir: dataTafsir.data,
-  }
-}
+  };
+};
 
-const page = async ({ params }: PageProps) => {
-  const nomor = (await params).nomor
-  const { surah, tafsir } = await getSurah(nomor)
+const Page = async ({ params }: PageProps) => {
+  const { nomor } = await params; // Resolve the params promise
+  const { surah, tafsir } = await getSurah(nomor);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
@@ -45,7 +56,9 @@ const page = async ({ params }: PageProps) => {
 
         <CardContent className="space-y-6">
           <div className="flex justify-center">
-            <AudioPlayer audioUrls={surah.audioFull} />
+            <Suspense fallback={<span className="text-white opacity-60">Loading...</span>}>
+              <AudioPlayer audioUrls={surah.audioFull} />
+            </Suspense>
           </div>
 
           <div className="prose lg:prose-xl prose-invert max-w-none text-white/90">
@@ -56,17 +69,16 @@ const page = async ({ params }: PageProps) => {
 
       <div className="mt-6 grid grid-cols-1 gap-4">
         {surah.ayat.map((ayat: any, idx: number) => {
-          const ayatTafsir = tafsir.tafsir && tafsir.tafsir[idx] ? tafsir.tafsir[idx] : null
+          const ayatTafsir = tafsir.tafsir && tafsir.tafsir[idx] ? tafsir.tafsir[idx] : null;
           return (
-            <Ayat key={idx} ayat={ayat} tafsir={ayatTafsir} />
-          )
-        })
-
-        }
+            <Suspense key={idx} fallback={<div>Loading ayat {idx + 1}...</div>}>
+              <Ayat ayat={ayat} tafsir={ayatTafsir} />
+            </Suspense>
+          );
+        })}
       </div>
-
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default Page;

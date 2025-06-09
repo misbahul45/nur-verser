@@ -1,3 +1,4 @@
+'use client'
 import { useEffect } from 'react';
 import { useQueryState, parseAsString, parseAsStringEnum } from 'nuqs';
 import { Input } from '@/components/ui/input';
