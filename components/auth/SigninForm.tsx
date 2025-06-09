@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Eye, EyeOff } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import {
   Form,
   FormControl,
@@ -22,6 +23,8 @@ import { toast } from 'sonner'
 
 export default function SigninForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -32,15 +35,28 @@ export default function SigninForm() {
     },
   })
 
-const onSubmit = async(data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-        await signinAction(data)
+      setIsLoading(true)
+      
+      const result = await signinAction(data)
+      
+      if (result.success) {
         form.reset()
         toast.success('Sign in successful')
+        
+        router.push('/dashboard')
+        router.refresh()
+      } else {
+        toast.error(result.error || 'Sign in failed')
+      }
     } catch (error) {
-        toast.error((error as Error).message)
+      console.error('Sign in error:', error)
+      toast.error('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
     }
-}
+  }
 
   return (
     <>
@@ -119,14 +135,13 @@ const onSubmit = async(data: z.infer<typeof formSchema>) => {
 
           <Button
             type="submit"
-            disabled={form.formState.isSubmitting || !form.formState.isValid}
-            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 cursor-pointer text-white py-4 rounded-2xl font-semibold text-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 cursor-pointer text-white py-4 rounded-2xl font-semibold text-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            {form.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
+            {isLoading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
       </Form>
-
 
       <div className="mt-8 text-center">
         <p className="text-gray-600">

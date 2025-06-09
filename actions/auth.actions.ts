@@ -4,70 +4,106 @@ import { SigninSchema, SignupSchema } from "@/schemas/auth.schema"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
 import { signIn, signOut } from "@/auth"
+import { redirect } from "next/navigation"
 
-export const signupAction = async (data: z.infer<typeof SignupSchema>) => {
+type ActionResult = {
+  success: boolean
+  error?: string
+  data?: any
+}
+
+export const signupAction = async (data: z.infer<typeof SignupSchema>): Promise<ActionResult> => {
   try {
+    const validatedData = await SignupSchema.parseAsync(data)
+    
     const existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+      where: { email: validatedData.email },
     })
+    
     if (existingUser) {
-      throw new Error("User already exists")
+      return { success: false, error: "User already exists" }
     }
 
-    await SignupSchema.parseAsync(data)
-    const hashedPassword = await bcrypt.hash(data.password, 10)
-    await prisma.user.create({
+    const hashedPassword = await bcrypt.hash(validatedData.password, 10)
+    const user = await prisma.user.create({
       data: {
-        name: data.fullName,
-        email: data.email,
+        name: validatedData.fullName,
+        email: validatedData.email,
         password: hashedPassword,
       },
     })
 
-    await signIn('credentials', {
-      email: data.email,
-      password: data.password,
+    const result = await signIn('credentials', {
+      email: validatedData.email,
+      password: validatedData.password,
       redirect: false
     })
+
+    return { success: true, data: { userId: user.id } }
+    
   } catch (error) {
+    console.error('Signup error:', error)
+    
     if (error instanceof z.ZodError) {
-      throw new Error("Validation error: " + error.errors.map(e => e.message).join(", "))
+      return { 
+        success: false, 
+        error: "Validation error: " + error.errors.map(e => e.message).join(", ") 
+      }
     }
-    throw new Error("An error occurred during sign up")
+    
+    return { success: false, error: "An error occurred during sign up" }
   }
 }
 
-export const signinAction = async (data: z.infer<typeof SigninSchema>) => {
+export const signinAction = async (data: z.infer<typeof SigninSchema>): Promise<ActionResult> => {
   try {
-    await SigninSchema.parseAsync(data)
+    const validatedData = await SigninSchema.parseAsync(data)
 
     const user = await prisma.user.findUnique({
-      where: { email: data.email },
+      where: { email: validatedData.email },
     })
 
     if (!user) {
-      throw new Error("User not found")
+      return { success: false, error: "Invalid email or password" }
     }
 
-    const isMatch = await bcrypt.compare(data.password, user.password as string)
+    const isMatch = await bcrypt.compare(validatedData.password, user.password as string)
     if (!isMatch) {
-      throw new Error("Invalid password")
+      return { success: false, error: "Invalid email or password" }
     }
 
-    await signIn('credentials', {
-      email: data.email,
-      password: data.password,
+    const result = await signIn('credentials', {
+      email: validatedData.email,
+      password: validatedData.password,
       redirect: false
     })
+
+    return { success: true, data: { userId: user.id } }
+    
   } catch (error) {
+    console.error('Signin error:', error)
+    
     if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
-      throw new Error("Redirect loop detected, please check credentials or callback URL")
+      return { success: true }
     }
-    throw new Error( "An error occurred during sign in")
+    
+    if (error instanceof z.ZodError) {
+      return { 
+        success: false, 
+        error: "Validation error: " + error.errors.map(e => e.message).join(", ") 
+      }
+    }
+    
+    return { success: false, error: "An error occurred during sign in" }
   }
 }
 
-
-export const signoutAction=async()=>{
+export const signoutAction = async (): Promise<ActionResult> => {
+  try {
     await signOut()
+    return { success: true }
+  } catch (error) {
+    console.error('Signout error:', error)
+    return { success: false, error: "An error occurred during sign out" }
+  }
 }
