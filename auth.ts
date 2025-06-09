@@ -50,4 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: undefined,
   },
   trustHost: true,
+    secret: process.env.AUTH_SECRET,
 })
+
+

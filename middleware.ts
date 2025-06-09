@@ -1,26 +1,24 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { fetchSession } from './actions'
+// middleware.ts
+import { auth } from "@/auth"
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
+export function middleware(request: NextRequest, context: any) {
+  return auth(async (req) => {
+    const { nextUrl, auth } = req
+    const isPublic = ["/", "/signin", "/signup"].includes(nextUrl.pathname)
 
-const publicRoutes = ['/', '/signin', '/signup']
+    if (!auth && !isPublic) {
+      return NextResponse.redirect(new URL("/signin", nextUrl))
+    }
+    if (auth && nextUrl.pathname === "/signin") {
+      return NextResponse.redirect(new URL("/dashboard", nextUrl))
+    }
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  const token =await fetchSession()
-  const isPublicRoute = publicRoutes.includes(pathname)
-
-  if (token && isPublicRoute) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
-
-  if (!token && !isPublicRoute) {
-    return NextResponse.redirect(new URL('/signin', request.url))
-  }
-
-  return NextResponse.next()
+    return NextResponse.next()
+  })(request, context)
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 }
