@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { SigninSchema, SignupSchema } from "@/schemas/auth.schema"
 import { z } from "zod"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import { signIn, signOut } from "@/auth"
 
 export const signupAction = async (data: z.infer<typeof SignupSchema>) => {
