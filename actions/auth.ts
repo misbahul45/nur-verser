@@ -27,13 +27,13 @@ export const signupAction = async (data: z.infer<typeof SignupSchema>) => {
     await signIn('credentials', {
       email: data.email,
       password: data.password,
-      redirect:false,
+      redirectTo:'/dashboard',
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error("Validation error: " + error.errors.map(e => e.message).join(", "))
     }
-    throw new Error(error instanceof Error ? error.message : "An error occurred during sign up")
+    throw new Error("An error occurred during sign up")
   }
 }
 
@@ -57,13 +57,13 @@ export const signinAction = async (data: z.infer<typeof SigninSchema>) => {
     await signIn('credentials', {
       email: data.email,
       password: data.password,
-      redirect: false,
+      redirectTo:'/dashboard',
     })
   } catch (error) {
     if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
       throw new Error("Redirect loop detected, please check credentials or callback URL")
     }
-    throw new Error(error instanceof Error ? error.message : "An error occurred during sign in")
+    throw new Error( "An error occurred during sign in")
   }
 }
 

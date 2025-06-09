@@ -19,10 +19,8 @@ import Link from 'next/link'
 import { SigninSchema as formSchema } from '@/schemas/auth.schema'
 import { signinAction } from '@/actions/auth'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
 
 export default function SigninForm() {
-  const router=useRouter()
   const [showPassword, setShowPassword] = useState(false)
 
   const form = useForm({
@@ -39,7 +37,6 @@ const onSubmit = async(data: z.infer<typeof formSchema>) => {
         await signinAction(data)
         form.reset()
         toast.success('Sign in successful')
-        router.push('/dashboard')
     } catch (error) {
         toast.error((error as Error).message)
     }

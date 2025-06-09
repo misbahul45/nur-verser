@@ -20,13 +20,11 @@ import { PasswordStrengthText } from '@/types'
 import { SignupSchema as formSchema } from '@/schemas/auth.schema'
 import { toast } from 'sonner'
 import { signupAction } from '@/actions/auth'
-import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 
 export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const router=useRouter()
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -65,7 +63,6 @@ const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
   const strengthInfo = getPasswordStrengthText(strength)
 
   const onSubmit = async(data: z.infer<typeof formSchema>) => {
-    console.log('Sign up data:', data)
     try {
         await signupAction(data)
         await signIn('credentials', {
@@ -75,7 +72,6 @@ const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
         })
         toast.success('Sign up successful')
         form.reset()
-        router.push('/dashboard')
     } catch (error) {
         toast.error((error as Error).message)
     }
