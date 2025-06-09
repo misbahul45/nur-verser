@@ -16,7 +16,7 @@ export const signupAction = async (data: z.infer<typeof SignupSchema>) => {
 
     await SignupSchema.parseAsync(data)
     const hashedPassword = await bcrypt.hash(data.password, 10)
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name: data.fullName,
         email: data.email,
@@ -33,7 +33,7 @@ export const signupAction = async (data: z.infer<typeof SignupSchema>) => {
     if (error instanceof z.ZodError) {
       throw new Error("Validation error: " + error.errors.map(e => e.message).join(", "))
     }
-    throw error
+    throw new Error(error instanceof Error ? error.message : "An error occurred during sign up")
   }
 }
 
@@ -60,7 +60,6 @@ export const signinAction = async (data: z.infer<typeof SigninSchema>) => {
       redirect: false,
     })
   } catch (error) {
-    console.error('signinAction error:', error)
     if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
       throw new Error("Redirect loop detected, please check credentials or callback URL")
     }
