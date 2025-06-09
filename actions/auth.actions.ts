@@ -15,7 +15,7 @@ export const signupAction = async (data: z.infer<typeof SignupSchema>): Promise<
   try {
     const validatedData = await SignupSchema.parseAsync(data)
     
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findFirst({
       where: { email: validatedData.email },
     })
     
@@ -58,7 +58,7 @@ export const signinAction = async (data: z.infer<typeof SigninSchema>): Promise<
   try {
     const validatedData = await SigninSchema.parseAsync(data)
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { email: validatedData.email },
     })
 
