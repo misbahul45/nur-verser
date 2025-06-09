@@ -1,10 +1,9 @@
 'use server'
-import { prisma } from "@/lib/prisma"
 import { SigninSchema, SignupSchema } from "@/schemas/auth.schema"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
 import { signIn, signOut } from "@/auth"
-import { redirect } from "next/navigation"
+import prisma from "@/lib/prisma"
 
 type ActionResult = {
   success: boolean
