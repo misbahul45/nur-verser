@@ -1,0 +1,167 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+model User {
+  id            String              @id @default(cuid())
+  name          String?
+  email         String?             @unique
+  emailVerified DateTime?          @map("email_verified")
+  image         String?
+  password      String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  accounts              Account[]
+  sessions              Session[]
+  memorizationProgress  MemorizationProgress[]
+  learningHistory       LearningHistory[]
+  favoriteAyahs         FavoriteAyah[]
+  communityMemberships  CommunityMembership[]
+  aiQueryHistory        AIQueryHistory[]
+  quizzes               Quiz[]
+  learningTargets       LearningTarget[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model MemorizationProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  surah        String
+  ayah         Int
+  progress     Float    @default(0.0)
+  lastReviewed DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LearningHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  surah     String
+  ayah      Int
+  action    String
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FavoriteAyah {
+  id        String   @id @default(cuid())
+  userId    String
+  ayahKey   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DailyVerse {
+  id         String   @id @default(cuid())
+  ayahKey    String
+  date       DateTime @unique
+  reflection String?
+}
+
+model AIQueryHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  query     String
+  response  String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Quiz {
+  id        String   @id @default(cuid())
+  userId    String
+  ayahKey   String
+  question  String
+  answer    String
+  correct   Boolean
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LearningTarget {
+  id           String   @id @default(cuid())
+  userId       String
+  goalType     String
+  targetAyah   Int
+  achievedAyah Int      @default(0)
+  startDate    DateTime
+  endDate      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Community {
+  id          String               @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  memberships CommunityMembership[]
+}
+
+model CommunityMembership {
+  id          String     @id @default(cuid())
+  userId      String
+  communityId String
+  role        String     @default("member")
+  joinedAt    DateTime   @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+}
