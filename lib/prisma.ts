@@ -1,11 +1,22 @@
-import { PrismaClient } from '@/lib/generated/prisma'
+import { PrismaClient } from '@prisma/client';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import { neonConfig } from '@neondatabase/serverless';
 
-const globalForPrisma = global as unknown as { 
-    prisma: PrismaClient
+import ws from 'ws';
+neonConfig.webSocketConstructor = ws;
+
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
 }
 
-const prisma = globalForPrisma.prisma || new PrismaClient()
+const connectionString = `${process.env.DATABASE_URL}`;
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+const adapter = new PrismaNeon({ connectionString });
+const prisma = global.prisma || new PrismaClient({
+  datasourceUrl: connectionString
+});
 
-export default prisma
+if (process.env.NODE_ENV === 'development') global.prisma = prisma;
+
+export default prisma;
