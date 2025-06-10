@@ -71,7 +71,7 @@ export default async function RootLayout({
                   <AppNavbar user={session?.user} />
                 </Suspense>
                 <main className="flex-1 w-full overflow-y-auto">
-                  <div className="w-full p-6 space-y-6">{children}</div>
+                  <div className="w-full px-2 pt-4 space-y-6">{children}</div>
                 </main>
                 <Footer />
               </div>

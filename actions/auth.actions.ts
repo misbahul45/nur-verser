@@ -4,12 +4,8 @@ import { z } from "zod"
 import bcrypt from "bcryptjs"
 import { signIn, signOut } from "@/auth"
 import prisma from "@/lib/prisma"
+import { ActionResult } from "@/types"
 
-type ActionResult = {
-  success: boolean
-  error?: string
-  data?: any
-}
 
 export const signupAction = async (data: z.infer<typeof SignupSchema>): Promise<ActionResult> => {
   try {
@@ -104,7 +100,6 @@ export const signoutAction = async (): Promise<ActionResult> => {
     })
     return { success: true }
   } catch (error) {
-    console.error('Signout error:', error)
     return { success: false, error: "An error occurred during sign out" }
   }
 }

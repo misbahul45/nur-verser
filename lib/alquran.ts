@@ -1,4 +1,5 @@
 import { QuranApiResponse, SurahTypeList } from "@/types";
+import { sleep } from "./utils";
 
 const BASE_URL = process.env.ALQURAN_API || 'https://equran.id/api/v2';
 
@@ -8,6 +9,7 @@ function apiUrl(path: string) {
 
 
 export async function fetchSuratList(): Promise<QuranApiResponse<SurahTypeList>> {
+  await sleep()
   const res = await fetch(apiUrl('/surat'));
   if (!res.ok) throw new Error('Gagal mengambil daftar surat');
   return res.json();

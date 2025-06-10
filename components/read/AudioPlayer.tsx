@@ -1,6 +1,5 @@
 'use client'
-
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Select,
@@ -10,37 +9,39 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Play, Pause } from "lucide-react"
-
-const reciters = {
-  '01': 'Abdullah Al-Juhany',
-  '02': 'Abdul-Muhsin Al-Qasim',
-  '03': 'Abdurrahman as-Sudais',
-  '04': 'Ibrahim Al-Dossari',
-  '05': 'Misyari Rasyid Al-Afasi',
-}
+import { AudioContext } from "./ReadContext"
 
 const AudioPlayer = ({ audioUrls }: { audioUrls: { [key: string]: string } }) => {
-  const [selectedReciter, setSelectedReciter] = useState('01')
+  const audioContext = useContext(AudioContext)
+  const selectedReciter = audioContext?.selectedReciter ?? '01'
+  const setSelectedReciter = audioContext?.setSelectedReciter ?? (() => {})
+  const reciters = audioContext?.reciters ?? {}
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
-    if (typeof Audio !== 'undefined') {
-      audioRef.current = new Audio(audioUrls[selectedReciter])
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.removeEventListener('ended', handleAudioEnded)
+    }
 
-      audioRef.current.addEventListener('ended', () => {
-        setIsPlaying(false)
-      })
+    if (typeof Audio !== 'undefined' && audioUrls[selectedReciter]) {
+      audioRef.current = new Audio(audioUrls[selectedReciter])
+      audioRef.current.addEventListener('ended', handleAudioEnded)
     }
 
     return () => {
       if (audioRef.current) {
         audioRef.current.pause()
-        audioRef.current.removeAttribute('src')
-        audioRef.current.load()
+        audioRef.current.removeEventListener('ended', handleAudioEnded)
+        audioRef.current = null
       }
     }
   }, [selectedReciter, audioUrls])
+
+  const handleAudioEnded = () => {
+    setIsPlaying(false)
+  }
 
   const togglePlayPause = () => {
     if (audioRef.current) {
@@ -54,18 +55,17 @@ const AudioPlayer = ({ audioUrls }: { audioUrls: { [key: string]: string } }) =>
     }
   }
 
+  const handleReciterChange = (value: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      setIsPlaying(false)
+    }
+    setSelectedReciter(value)
+  }
+
   return (
     <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
-      <Select
-        value={selectedReciter}
-        onValueChange={(value) => {
-          if (audioRef.current) {
-            audioRef.current.pause()
-            setIsPlaying(false)
-            setSelectedReciter(value)
-          }
-        }}
-      >
+      <Select value={selectedReciter} onValueChange={handleReciterChange}>
         <SelectTrigger className="w-[250px] bg-white text-black">
           <SelectValue placeholder="Pilih Qari" />
         </SelectTrigger>
@@ -82,6 +82,7 @@ const AudioPlayer = ({ audioUrls }: { audioUrls: { [key: string]: string } }) =>
         onClick={togglePlayPause}
         variant="outline"
         className="w-[120px] flex items-center gap-2 cursor-pointer"
+        disabled={!audioUrls[selectedReciter]}
       >
         {isPlaying ? <Pause size={18} /> : <Play size={18} />}
         {isPlaying ? 'Pause' : 'Play'}

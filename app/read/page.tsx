@@ -1,4 +1,5 @@
 import ListSurat from "@/components/read/ListSurat";
+import LoaderQuran from "@/components/read/LoaderQuran";
 import { fetchSuratList } from "@/lib/alquran";
 import { BookOpen } from "lucide-react";
 import { Suspense } from "react"; 
@@ -31,7 +32,7 @@ const page = async () => {
             </p>
           </div>
 
-          <Suspense fallback={<div>Loading surah list...</div>}>
+          <Suspense fallback={<LoaderQuran />}>
             <ListSurat allSurat={allSurat} />
           </Suspense>
 

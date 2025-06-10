@@ -27,6 +27,7 @@ model User {
   aiQueryHistory        AIQueryHistory[]
   quizzes               Quiz[]
   learningTargets       LearningTarget[]
+  ayahNotes             AyatNotes[]
 
   @@map("users")
 }
@@ -98,15 +99,26 @@ model LearningHistory {
 model FavoriteAyah {
   id        String   @id @default(cuid())
   userId    String
-  ayahKey   String
+  ayahKey   Int  @unique
+  surah_number Int  @unique
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AyatNotes{
+  id        String   @id @default(cuid())
+  ayahKey   Int      @unique
+  note      String
+  userId    String
+  ayat      String   
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DailyVerse {
   id         String   @id @default(cuid())
-  ayahKey    String
+  ayahKey    Int
   date       DateTime @unique
   reflection String?
 }
@@ -124,7 +136,7 @@ model AIQueryHistory {
 model Quiz {
   id        String   @id @default(cuid())
   userId    String
-  ayahKey   String
+  ayahKey   Int
   question  String
   answer    String
   correct   Boolean

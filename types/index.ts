@@ -224,4 +224,11 @@ interface Tafsir {
 export interface SurahData {
   surah: Surah;
   tafsir: Tafsir;
+  userId? :string
+}
+
+export type ActionResult = {
+  success: boolean
+  error?: string
+  data?: any
 }

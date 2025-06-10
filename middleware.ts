@@ -6,7 +6,16 @@ import type { NextRequest } from "next/server"
 export function middleware(request: NextRequest, context: any) {
   return auth(async (req) => {
     const { nextUrl, auth } = req
-    const isPublic = ["/", "/signin", "/signup"].includes(nextUrl.pathname)
+    
+      const publicRoutes = [
+      /^\/$/,
+      /^\/signin$/,
+      /^\/signup$/,
+      /^\/read(\/|$)/,
+      /^\/ai-chat$/,
+    ];
+
+  const isPublic = publicRoutes.some((route) => route.test(nextUrl.pathname));
 
     if (!auth && !isPublic) {
       return NextResponse.redirect(new URL("/signin", nextUrl))
