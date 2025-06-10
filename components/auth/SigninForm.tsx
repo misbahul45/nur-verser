@@ -27,6 +27,7 @@ export default function SigninForm() {
   const router = useRouter()
 
   const form = useForm({
+    mode:'onChange',
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',

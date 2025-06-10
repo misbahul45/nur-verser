@@ -28,6 +28,7 @@ export default function SignupForm() {
 
   const form = useForm({
     resolver: zodResolver(formSchema),
+    mode: 'onChange',
     defaultValues: {
       fullName: '',
       email: '',
