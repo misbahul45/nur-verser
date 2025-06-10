@@ -17,17 +17,26 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import Link from 'next/link'
-import { SigninSchema as formSchema } from '@/schemas/auth.schema'
 import { signinAction } from '@/actions/auth.actions'
 import { toast } from 'sonner'
+
+const formSchema = z.object({
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  password: z.string().min(1, {
+    message: "Password is required.",
+  }),
+  rememberMe: z.boolean().optional(),
+})
 
 export default function SigninForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const form = useForm({
-    mode:'onChange',
+  const form = useForm<z.infer<typeof formSchema>>({
+    mode: 'onChange',
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
@@ -40,7 +49,10 @@ export default function SigninForm() {
     try {
       setIsLoading(true)
       
-      const result = await signinAction(data)
+      const result = await signinAction({
+        ...data,
+        rememberMe: data.rememberMe ?? false,
+      })
       
       if (result.success) {
         form.reset()
@@ -77,7 +89,7 @@ export default function SigninForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500 text-sm" />
               </FormItem>
             )}
           />
@@ -105,7 +117,7 @@ export default function SigninForm() {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500 text-sm" />
               </FormItem>
             )}
           />

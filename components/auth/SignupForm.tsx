@@ -17,18 +17,38 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import Link from 'next/link'
 import { PasswordStrengthText } from '@/types'
-import { SignupSchema as formSchema } from '@/schemas/auth.schema'
 import { toast } from 'sonner'
 import { signupAction } from '@/actions/auth.actions'
 import { signIn } from 'next-auth/react'
+
+const formSchema = z.object({
+  fullName: z.string().min(2, {
+    message: "Full name must be at least 2 characters.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  password: z.string().min(8, {
+    message: "Password must be at least 8 characters.",
+  }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
+    message: "Password must contain at least one uppercase letter, one lowercase letter, and one number.",
+  }),
+  confirmPassword: z.string(),
+  agreeTerms: z.boolean().refine((value) => value === true, {
+    message: "You must accept the terms and conditions.",
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+})
 
 export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    mode: 'onChange',
+    mode: "onChange",
     defaultValues: {
       fullName: '',
       email: '',
@@ -38,26 +58,24 @@ export default function SignupForm() {
     },
   })
 
-
-const passwordStrength = (password: string): number => {
+  const passwordStrength = (password: string): number => {
     let strength = 0
     if (password.length >= 8) strength++
     if (/[A-Z]/.test(password)) strength++
     if (/[0-9]/.test(password)) strength++
     if (/[^A-Za-z0-9]/.test(password)) strength++
     return strength
-}
+  }
 
-
-const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
+  const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
     switch (strength) {
-        case 0: case 1: return { text: 'Weak', color: 'text-red-500' }
-        case 2: return { text: 'Fair', color: 'text-yellow-500' }
-        case 3: return { text: 'Good', color: 'text-blue-500' }
-        case 4: return { text: 'Strong', color: 'text-green-500' }
-        default: return { text: '', color: '' }
+      case 0: case 1: return { text: 'Weak', color: 'text-red-500' }
+      case 2: return { text: 'Fair', color: 'text-yellow-500' }
+      case 3: return { text: 'Good', color: 'text-blue-500' }
+      case 4: return { text: 'Strong', color: 'text-green-500' }
+      default: return { text: '', color: '' }
     }
-}
+  }
 
   const password = form.watch('password')
   const strength = passwordStrength(password)
@@ -65,16 +83,16 @@ const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
 
   const onSubmit = async(data: z.infer<typeof formSchema>) => {
     try {
-        await signupAction(data)
-        await signIn('credentials', {
-          email: data.email,
-          password: data.password,
-          redirect:false,
-        })
-        toast.success('Sign up successful')
-        form.reset()
+      await signupAction(data)
+      await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
+      toast.success('Sign up successful')
+      form.reset()
     } catch (error) {
-        toast.error((error as Error).message)
+      toast.error((error as Error).message)
     }
   }
 
@@ -96,7 +114,7 @@ const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500 text-sm" />
               </FormItem>
             )}
           />
@@ -115,7 +133,7 @@ const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500 text-sm" />
               </FormItem>
             )}
           />
@@ -143,7 +161,7 @@ const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500 text-sm" />
                 {password && (
                   <div className="mt-2">
                     <div className="flex items-center space-x-2">
@@ -219,27 +237,29 @@ const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
                     className="w-4 h-4 mt-1 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                   />
                 </FormControl>
-                <FormLabel className="text-sm text-gray-600 leading-relaxed cursor-pointer">
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 font-semibold">
-                    Terms of Service
-                  </Link>{' '}
-                  and{' '}
-                  <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 font-semibold">
-                    Privacy Policy
-                  </Link>
-                </FormLabel>
-                <FormMessage />
+                <div className="space-y-1">
+                  <FormLabel className="text-sm text-gray-600 leading-relaxed cursor-pointer">
+                    I agree to the{' '}
+                    <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 font-semibold">
+                      Terms of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 font-semibold">
+                      Privacy Policy
+                    </Link>
+                  </FormLabel>
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
 
           <Button
             type="submit"
-            disabled={!form.formState.isValid || form.formState.isSubmitting}
+            disabled={form.formState.isSubmitting}
             className="w-full bg-gradient-to-r cursor-pointer from-emerald-600 to-emerald-700 text-white py-4 rounded-2xl font-semibold text-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            {form.formState.isSubmitting?'Loading...':'Sign Up'}
+            {form.formState.isSubmitting ? 'Loading...' : 'Sign Up'}
           </Button>
         </form>
       </Form>
