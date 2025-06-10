@@ -33,8 +33,6 @@ const getSurah = async (nomor: string): Promise<SurahData> => {
     fetchSession()
   ]);
 
-  console.log(session)
-
   return {
     surah: dataSurah.data,
     tafsir: dataTafsir.data,
