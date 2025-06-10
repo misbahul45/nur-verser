@@ -11,6 +11,7 @@ import { Metadata } from "next";
 import ReadProvider from "@/components/read/ReadContext";
 import { fetchSession } from "@/actions";
 import { getFavoriteAyatAction } from "@/actions/read.action";
+import SuratDescription from "@/components/read/SuratDescription";
 
 type PageProps = {
   params: Promise<{ nomor: string }>;
@@ -48,7 +49,7 @@ const Page = async ({ params }: PageProps) => {
   return (
    <ReadProvider>
      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-slate-100">
-      <div className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-emerald-100 px-2 py-3">
+      <div className="sticky top-0 z-30 backdrop-blur-md bg-white/80 border-b border-emerald-100 px-2 py-3">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-3">
             <Button size="sm" variant="ghost" asChild className="hover:bg-emerald-100">
@@ -72,27 +73,27 @@ const Page = async ({ params }: PageProps) => {
         </div>
       </div>
 
-      <div className="px-4 py-8">
+      <div className="px-2.5 md:px-4 md:py-8 py-5">
         <div className="max-w-6xl mx-auto">
           <Card className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 text-white shadow-2xl rounded-3xl overflow-hidden mb-8">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
-            <CardHeader className="relative z-10 text-center py-12">
+            <CardHeader className="relative z-10 text-center md:py-10 sm:py-8 py-4">
               <div className="flex items-center justify-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                   <BookOpen size={32} className="text-white" />
                 </div>
               </div>
-              <CardTitle className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4">
+              <CardTitle className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
                 {surah.namaLatin}
               </CardTitle>
-              <span className="block text-4xl font-arabic opacity-90 mb-4">{surah.nama}</span>
+              <span className="block text-xl sm:text-3xl md:text-4xl font-arabic opacity-90 mb-4">{surah.nama}</span>
               <div className="flex items-center justify-center gap-4 text-sm opacity-80">
                 <span className="px-3 py-1 bg-white/20 rounded-full">{surah.tempatTurun}</span>
                 <span className="px-3 py-1 bg-white/20 rounded-full">{surah.jumlahAyat} Ayat</span>
               </div>
             </CardHeader>
 
-            <CardContent className="relative z-10 pb-12">
+            <CardContent className="relative z-10 md:pb-12 sm:pb-8 pb-6">
               <div className="flex justify-center mb-8">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
                   <Suspense fallback={
@@ -106,11 +107,7 @@ const Page = async ({ params }: PageProps) => {
                 </div>
               </div>
 
-              <div className="max-w-4xl mx-auto">
-                <div className="prose lg:prose-xl prose-invert max-w-none text-white/90 text-center">
-                  <div dangerouslySetInnerHTML={{ __html: surah.deskripsi || "" }} />
-                </div>
-              </div>
+              <SuratDescription deskripsi={surah.deskripsi} />
             </CardContent>
           </Card>
 
