@@ -176,6 +176,12 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite, hasNote }: AyatP
         </div>
         <p className="sm:text-base text-sm text-gray-800 mb-3">{ayat.teksIndonesia}</p>
         <AyatNotes
+          userId={userId!}
+          ayatKey={ayat.nomorAyat}
+          surah_number={surat_number}
+          arabic={ayat.teksArab}
+          terjemahan={ayat.teksIndonesia}
+          tafsir={tafsir?.teks!}
           showNotes={showNotes}
           setShowNotes={setShowNotes}
         />

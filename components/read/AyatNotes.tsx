@@ -1,78 +1,166 @@
-'use client'
+'use client';
 import { Save, StickyNote, X } from 'lucide-react';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
+import { createNoteAyatAction, getNoteAyatAction, deleteNoteAyatAction,  } from '@/actions/read.action';
+import { toast } from 'sonner';
+import { ActionResult } from "@/types"
 
 interface AyatNotesProps {
-    showNotes:boolean;
-    setShowNotes:React.Dispatch<React.SetStateAction<boolean>>
+  showNotes: boolean;
+  setShowNotes: React.Dispatch<React.SetStateAction<boolean>>;
+  ayatKey: number;
+  surah_number: number;
+  userId: string;
+  arabic: string;
+  terjemahan: string;
+  tafsir: string;
 }
 
-const AyatNotes = ({ showNotes, setShowNotes }:AyatNotesProps) => {
-    const [notes, setNotes]=useState('')
-    const[isLoadingNotes, setIsloadingNotes]=useState(false)
+const AyatNotes: React.FC<AyatNotesProps> = ({
+  showNotes,
+  setShowNotes,
+  ayatKey,
+  surah_number,
+  userId,
+  arabic,
+  terjemahan,
+  tafsir,
+}) => {
+  const { data, isLoading } = useQuery<ActionResult, Error>({
+    queryKey: ['notes', ayatKey, surah_number, userId],
+    queryFn: ({ queryKey }) => {
+      const [, ayatKeyParam, surahNumberParam, userIdParam] = queryKey as [string, number, number, string];
+      return getNoteAyatAction({
+        ayatKey: ayatKeyParam,
+        surah_number: surahNumberParam,
+        userId: userIdParam,
+      });
+    },
+  });
 
-    const saveNotes=()=>{
+  const [notes, setNotes] = useState<string>('');
+  useEffect(() => {
+    setNotes(data?.data?.note || '');
+  }, [data]);
 
-    }
+  const queryClient = useQueryClient();
 
-    const clearNotes=()=>{
+  const saveMutation = useMutation<ActionResult, Error, { note: string }>({
+    mutationFn: async ({ note }) =>
+      createNoteAyatAction({
+        ayatKey,
+        surah_number,
+        userId,
+        note,
+        arabic,
+        terjemahan,
+        tafsir,
+      }),
+    onSuccess: async (result) => {
+      if (result.success) {
+        toast.success('Catatan berhasil disimpan');
+        await queryClient.invalidateQueries({ queryKey: ['notes', ayatKey, surah_number, userId] });
+      } else {
+        toast.error(result.error || 'Catatan gagal disimpan');
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Catatan gagal disimpan');
+    },
+  });
 
-    }
+  const deleteMutation = useMutation<ActionResult, Error, void>({
+    mutationFn: () =>
+      deleteNoteAyatAction({
+        ayatKey,
+        surah_number,
+        userId,
+      }),
+    onSuccess: async (result) => {
+      if (result.success) {
+        toast.success('Catatan berhasil dihapus');
+        setNotes('');
+        await queryClient.invalidateQueries({ queryKey: ['notes', ayatKey, surah_number, userId] });
+      } else {
+        toast.error(result.error || 'Catatan gagal dihapus');
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Catatan gagal dihapus');
+    },
+  });
 
-    if(!showNotes){
-        return null;
-    }
+  const saveNotes = () => {
+    saveMutation.mutate({ note: notes });
+  };
+
+  const clearNotes = () => {
+    deleteMutation.mutate();
+  };
+
+  if (!showNotes) {
+    return null;
+  }
+
   return (
-    <>
-      <div className="p-4 border-l-4 border-yellow-400 bg-yellow-50 rounded-lg">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold text-yellow-800 flex items-center gap-2">
-                <StickyNote size={16} />
-                Catatan Pribadi
-              </h4>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowNotes(false)}
-                className="text-yellow-600 hover:text-yellow-800"
-              >
-                <X size={16} />
-              </Button>
-            </div>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Tambahkan catatan pribadi disini..."
-              className="mb-3 min-h-[100px] resize-none border-yellow-200 focus:border-yellow-400"
-            />
-            <div className="flex gap-2">
-              <Button
-                onClick={saveNotes}
-                disabled={isLoadingNotes}
-                className="bg-yellow-500 cursor-pointer hover:bg-yellow-600 text-white flex items-center gap-2"
-              >
-                {isLoadingNotes ? (
-                  <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                ) : (
-                  <Save size={16} />
-                )}
-                Save Notes
-              </Button>
-              {notes && (
-                <Button
-                  variant="outline"
-                  onClick={clearNotes}
-                  className="border-yellow-300 cursor-pointer text-yellow-700 hover:bg-yellow-50"
-                >
-                  Clear
-                </Button>
-              )}
-            </div>
-          </div>
-    </>
-  )
-}
+    <div className="p-4 border-l-4 border-yellow-400 bg-yellow-50 rounded-lg">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-semibold text-yellow-800 flex items-center gap-2">
+          <StickyNote size={16} />
+          Catatan Pribadi
+        </h4>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowNotes(false)}
+          className="text-yellow-600 hover:text-yellow-800"
+        >
+          <X size={16} />
+        </Button>
+      </div>
+      {isLoading ? (
+        <div>Loading note...</div>
+      ) : (
+        <Textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Tambahkan catatan pribadi disini..."
+          className="mb-3 min-h-[100px] resize-none border-yellow-200 focus:border-yellow-400"
+        />
+      )}
+      <div className="flex gap-2">
+        <Button
+          onClick={saveNotes}
+          disabled={saveMutation.isPending || isLoading}
+          className="bg-yellow-500 cursor-pointer hover:bg-yellow-600 text-white flex items-center gap-2"
+        >
+          {saveMutation.isPending ? (
+            <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+          ) : (
+            <Save size={16} />
+          )}
+          Save Notes
+        </Button>
+        {notes && (
+          <Button
+            variant="outline"
+            onClick={clearNotes}
+            disabled={deleteMutation.isPending || isLoading}
+            className="border-yellow-300 cursor-pointer text-yellow-700 hover:bg-yellow-50"
+          >
+            {deleteMutation.isPending ? (
+              <div className="w-4 h-4 animate-spin rounded-full border-2 border-yellow-700 border-t-transparent"></div>
+            ) : (
+              'Clear'
+            )}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
 
-export default AyatNotes
+export default AyatNotes;

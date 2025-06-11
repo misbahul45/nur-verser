@@ -89,7 +89,8 @@ export const getFavoriteAyatAction = async (data: GetFavoriteAyat): Promise<Acti
       };
     }
     return {
-      success: true
+      success: true,
+      data: findAyat
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
