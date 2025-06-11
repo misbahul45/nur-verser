@@ -7,7 +7,8 @@ import Footer from '@/components/layout/Footer';
 import { fetchSession } from '@/actions';
 import ClientWrapper from '@/components/layout/ClientWrapper';
 import ButtonToTop from '@/components/layout/ButtonToTop';
-import { Suspense } from 'react';;
+import { Suspense } from 'react';
+import { SessionProvider } from 'next-auth/react'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -63,21 +64,23 @@ export default async function RootLayout({
   return (
     <html lang="id">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}>
-        <ClientWrapper>
-            <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background to-muted/20">
-              <AppSidebar />
-              <div className="flex-1 flex flex-col w-full">
-                <Suspense fallback={null}>
-                  <AppNavbar user={session?.user} />
-                </Suspense>
-                <main className="flex-1 w-full overflow-y-auto">
-                  <div className="w-full px-2 pt-4 space-y-6">{children}</div>
-                </main>
-                <Footer />
+        <SessionProvider>
+          <ClientWrapper>
+              <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background to-muted/20">
+                <AppSidebar />
+                <div className="flex-1 flex flex-col w-full">
+                  <Suspense fallback={null}>
+                    <AppNavbar user={session?.user} />
+                  </Suspense>
+                  <main className="flex-1 w-full overflow-y-auto">
+                    <div className="w-full px-2 pt-4 space-y-6">{children}</div>
+                  </main>
+                  <Footer />
+                </div>
               </div>
-            </div>
-            <ButtonToTop />
-        </ClientWrapper>
+              <ButtonToTop />
+          </ClientWrapper>
+        </SessionProvider>
       </body>
     </html>
   );

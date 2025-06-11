@@ -14,7 +14,7 @@ interface ClientWrapperProps {
 }
 
 export default function ClientWrapper({ children }: ClientWrapperProps) {
-  const [queryClient] = useState(new QueryClient())
+  const [queryClient] = useState(()=>new QueryClient())
   return (
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>

@@ -36,15 +36,7 @@ export const CreateNoteAyatSchema = z.object({
   tafsir: z.string().min(1, "Tafsir is required"),
 });
 
-export const UpdateNoteAyatSchema = z.object({
-  ayatKey: z.number().int().positive(),
-  userId: z.string().min(1, "User ID is required"),
-  surah_number: z.number().int().positive(),
-  note: z.string().min(1, "Note is required"),
-  arabic: z.string().min(1, "Arabic text is required"),
-  terjemahan: z.string().min(1, "Terjemahan is required"),
-  tafsir: z.string().min(1, "Tafsir is required"),
-});
+
 
 export const DeleteNoteAyatSchema = z.object({
   ayatKey: z.number().int().positive(),
@@ -57,7 +49,6 @@ export type SaveFavoriteAyat = z.infer<typeof SaveFavoriteAyatSchema>;
 export type DeleteFavoriteAyat = z.infer<typeof DeleteFavoriteAyatSchema>;
 export type GetFavoriteAyat = z.infer<typeof GetFavoriteAyatSchema>;
 export type CreateNoteAyat = z.infer<typeof CreateNoteAyatSchema>;
-export type UpdateNoteAyat = z.infer<typeof UpdateNoteAyatSchema>;
 export type DeleteNoteAyat = z.infer<typeof DeleteNoteAyatSchema>;
 export type GetNoteAyat = z.infer<typeof GetNoteAyatSchema>;
 

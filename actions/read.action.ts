@@ -2,7 +2,7 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { ActionResult } from "@/types";
-import { SaveFavoriteAyat, SaveFavoriteAyatSchema, DeleteFavoriteAyatSchema, GetFavoriteAyatSchema, DeleteFavoriteAyat, CreateNoteAyat, CreateNoteAyatSchema, GetFavoriteAyat, DeleteNoteAyatSchema, DeleteNoteAyat, UpdateNoteAyat, UpdateNoteAyatSchema, GetNoteAyat, GetNoteAyatSchema } from "@/schemas/read.schema";
+import { SaveFavoriteAyat, SaveFavoriteAyatSchema, DeleteFavoriteAyatSchema, GetFavoriteAyatSchema, DeleteFavoriteAyat, CreateNoteAyat, CreateNoteAyatSchema, GetFavoriteAyat, DeleteNoteAyatSchema, DeleteNoteAyat, GetNoteAyat, GetNoteAyatSchema } from "@/schemas/read.schema";
 
 export const saveFavoriteAyatAction = async (data: SaveFavoriteAyat): Promise<ActionResult> => {
   try {
@@ -105,33 +105,51 @@ export const getFavoriteAyatAction = async (data: GetFavoriteAyat): Promise<Acti
   }
 };
 
-export const createNoteAyatAction = async (data: CreateNoteAyat): Promise<ActionResult> => {
+export const createNoteAyatAction = async (
+  data: CreateNoteAyat
+): Promise<ActionResult> => {
   try {
     const validatedData = CreateNoteAyatSchema.parse(data);
 
-    console.log(validatedData)
-
-    await prisma.ayahNotes.create({
-      data: {
-        ...validatedData,
+    await prisma.ayahNotes.upsert({
+      where: {
+        userId_ayahKey_surah_number: {
+          userId: validatedData.userId,
+          ayahKey: validatedData.ayatKey,
+          surah_number: validatedData.surah_number,
+        },
+      },
+      update: {
+        note: validatedData.note,
+        tafsir: validatedData.tafsir,
+        terjemahan: validatedData.terjemahan,
+        arabic: validatedData.arabic,
+      },
+      create: {
+        userId: validatedData.userId,
+        note: validatedData.note,
+        tafsir: validatedData.tafsir,
+        terjemahan: validatedData.terjemahan,
+        arabic: validatedData.arabic,
         ayahKey: validatedData.ayatKey,
         surah_number: validatedData.surah_number,
-      }
+      },
     });
 
     return {
-      success: true
+      success: true,
     };
   } catch (error) {
+    console.error(error);
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: error.errors.map(e => e.message).join(", ")
+        error: error.errors.map((e) => e.message).join(", "),
       };
     }
     return {
       success: false,
-      error: "An error occurred while creating note ayat"
+      error: "An error occurred while creating/updating note ayat",
     };
   }
 };
@@ -172,44 +190,6 @@ export const getNoteAyatAction = async (data: GetNoteAyat): Promise<ActionResult
     return {
       success: false,
       error: "An error occurred while getting note ayat"
-    };
-  }
-};
-
-export const updateNoteAyatAction = async (data: UpdateNoteAyat): Promise<ActionResult> => {
-  try {
-    // Validate input
-    const validatedData = UpdateNoteAyatSchema.parse(data);
-
-    await prisma.ayahNotes.updateMany({
-      where: {
-        AND: [
-          { ayahKey: validatedData.ayatKey },
-          { userId: validatedData.userId },
-          { surah_number: validatedData.surah_number }
-        ]
-      },
-      data: {
-        note: validatedData.note,
-        arabic: validatedData.arabic,
-        terjemahan: validatedData.terjemahan,
-        tafsir: validatedData.tafsir
-      }
-    });
-
-    return {
-      success: true
-    };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: error.errors.map(e => e.message).join(", ")
-      };
-    }
-    return {
-      success: false,
-      error: "An error occurred while updating note ayat"
     };
   }
 };

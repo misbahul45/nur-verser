@@ -89,7 +89,10 @@ const AyatNotes: React.FC<AyatNotesProps> = ({
   };
 
   const clearNotes = () => {
-    deleteMutation.mutate();
+    if(noteData?.data){
+      deleteMutation.mutate();
+    }
+    setNotes('')
   };
 
   if (!showNotes) {
