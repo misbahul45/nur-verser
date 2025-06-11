@@ -1,10 +1,10 @@
 'use client';
 import { Save, StickyNote, X } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { createNoteAyatAction, getNoteAyatAction, deleteNoteAyatAction,  } from '@/actions/read.action';
+import { createNoteAyatAction, deleteNoteAyatAction } from '@/actions/read.action';
 import { toast } from 'sonner';
 import { ActionResult } from "@/types"
 
@@ -17,6 +17,7 @@ interface AyatNotesProps {
   arabic: string;
   terjemahan: string;
   tafsir: string;
+  noteData?: ActionResult;
 }
 
 const AyatNotes: React.FC<AyatNotesProps> = ({
@@ -28,29 +29,19 @@ const AyatNotes: React.FC<AyatNotesProps> = ({
   arabic,
   terjemahan,
   tafsir,
+  noteData,
 }) => {
-  const { data, isLoading } = useQuery<ActionResult, Error>({
-    queryKey: ['notes', ayatKey, surah_number, userId],
-    queryFn: ({ queryKey }) => {
-      const [, ayatKeyParam, surahNumberParam, userIdParam] = queryKey as [string, number, number, string];
-      return getNoteAyatAction({
-        ayatKey: ayatKeyParam,
-        surah_number: surahNumberParam,
-        userId: userIdParam,
-      });
-    },
-  });
-
   const [notes, setNotes] = useState<string>('');
+  
   useEffect(() => {
-    setNotes(data?.data?.note || '');
-  }, [data]);
+    setNotes(noteData?.data?.note || '');
+  }, [noteData]);
 
   const queryClient = useQueryClient();
 
   const saveMutation = useMutation<ActionResult, Error, { note: string }>({
     mutationFn: async ({ note }) =>
-      createNoteAyatAction({
+      await createNoteAyatAction({
         ayatKey,
         surah_number,
         userId,
@@ -121,20 +112,16 @@ const AyatNotes: React.FC<AyatNotesProps> = ({
           <X size={16} />
         </Button>
       </div>
-      {isLoading ? (
-        <div>Loading note...</div>
-      ) : (
-        <Textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Tambahkan catatan pribadi disini..."
-          className="mb-3 min-h-[100px] resize-none border-yellow-200 focus:border-yellow-400"
-        />
-      )}
+      <Textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        placeholder="Tambahkan catatan pribadi disini..."
+        className="mb-3 min-h-[100px] resize-none border-yellow-200 focus:border-yellow-400"
+      />
       <div className="flex gap-2">
         <Button
           onClick={saveNotes}
-          disabled={saveMutation.isPending || isLoading}
+          disabled={saveMutation.isPending}
           className="bg-yellow-500 cursor-pointer hover:bg-yellow-600 text-white flex items-center gap-2"
         >
           {saveMutation.isPending ? (
@@ -142,19 +129,19 @@ const AyatNotes: React.FC<AyatNotesProps> = ({
           ) : (
             <Save size={16} />
           )}
-          Save Notes
+          Simpan
         </Button>
         {notes && (
           <Button
             variant="outline"
             onClick={clearNotes}
-            disabled={deleteMutation.isPending || isLoading}
+            disabled={deleteMutation.isPending}
             className="border-yellow-300 cursor-pointer text-yellow-700 hover:bg-yellow-50"
           >
             {deleteMutation.isPending ? (
               <div className="w-4 h-4 animate-spin rounded-full border-2 border-yellow-700 border-t-transparent"></div>
             ) : (
-              'Clear'
+              'Hapus'
             )}
           </Button>
         )}

@@ -31,7 +31,6 @@ export const saveFavoriteAyatAction = async (data: SaveFavoriteAyat): Promise<Ac
 
 export const deleteFavoriteAyatAction = async (data: DeleteFavoriteAyat): Promise<ActionResult> => {
   try {
-    // Validate input
     const validatedData = DeleteFavoriteAyatSchema.parse(data);
 
     if (!data.userId) {
@@ -69,7 +68,7 @@ export const deleteFavoriteAyatAction = async (data: DeleteFavoriteAyat): Promis
 
 export const getFavoriteAyatAction = async (data: GetFavoriteAyat): Promise<ActionResult> => {
   try {
-    // Validate input
+
     const validatedData = GetFavoriteAyatSchema.parse(data);
 
     const findAyat = await prisma.favoriteAyah.count({
@@ -109,6 +108,8 @@ export const getFavoriteAyatAction = async (data: GetFavoriteAyat): Promise<Acti
 export const createNoteAyatAction = async (data: CreateNoteAyat): Promise<ActionResult> => {
   try {
     const validatedData = CreateNoteAyatSchema.parse(data);
+
+    console.log(validatedData)
 
     await prisma.ayahNotes.create({
       data: {

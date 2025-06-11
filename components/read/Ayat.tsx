@@ -6,30 +6,44 @@ import { Button } from '../ui/button';
 import { ChevronDown, ChevronUp, Play, Pause, Heart, StickyNote } from 'lucide-react';
 import { AudioContext } from './ReadContext';
 import AyatNotes from './AyatNotes';
-import { deleteFavoriteAyatAction, getFavoriteAyatAction, saveFavoriteAyatAction } from '@/actions/read.action';
+import { deleteFavoriteAyatAction, saveFavoriteAyatAction, getNoteAyatAction } from '@/actions/read.action';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
+import { ActionResult } from "@/types"
 
 interface AyatProps {
   ayat: AyatType;
-  surat_number:number;
+  surat_number: number;
   tafsir: TafsirItem | null;
   userId?: string;
-  isFavorite:boolean;
-  hasNote:boolean;
+  isFavorite: boolean;
 }
 
-const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite, hasNote }: AyatProps) => {
+const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite }: AyatProps) => {
   const [showTafsir, setShowTafsir] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [favoriteAyat, setFavoriteAyat] = useState(isFavorite);
   const [showNotes, setShowNotes] = useState(false);
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
 
-
   const audioContext = useContext(AudioContext);
   const selectedReciter = audioContext?.selectedReciter ?? '01';
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const { data: noteData } = useQuery<ActionResult, Error>({
+    queryKey: ['notes', ayat.nomorAyat, surat_number, userId],
+    queryFn: ({ queryKey }) => {
+      const [, ayatKeyParam, surahNumberParam, userIdParam] = queryKey as [string, number, number, string];
+      return getNoteAyatAction({
+        ayatKey: ayatKeyParam,
+        surah_number: surahNumberParam,
+        userId: userIdParam,
+      });
+    },
+    enabled: !!userId,
+  });
+
+  const hasNote = Boolean(noteData?.data?.note);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -63,8 +77,8 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite, hasNote }: AyatP
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        audioRef.current.play().catch((error) => {
-          toast.error('Maaf error audio')
+        audioRef.current.play().catch(() => {
+          toast.error('Maaf audio tidak dapat diputar');
         });
         setIsPlaying(true);
       }
@@ -74,35 +88,42 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite, hasNote }: AyatP
   const toggleFavorite = async () => {
     if (userId) {
       let res;
-      setIsLoadingFavorite(true)
-      if(!favoriteAyat){
-        res=await saveFavoriteAyatAction({
+      setIsLoadingFavorite(true);
+      
+      if (!favoriteAyat) {
+        res = await saveFavoriteAyatAction({
           userId,
-          ayahKey:ayat.nomorAyat,
+          ayahKey: ayat.nomorAyat,
           surah_number: surat_number,
-          arabic:ayat.teksArab,
-          terjemahan:ayat.teksIndonesia,
-          tafsir:tafsir?.teks!
-        })
-        if(res.error){
-          toast.error(res.error)
+          arabic: ayat.teksArab,
+          terjemahan: ayat.teksIndonesia,
+          tafsir: tafsir?.teks!
+        });
+        
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          toast.success('Ayat berhasil ditambahkan ke favorit');
+          setFavoriteAyat(true);
         }
-        toast.success('Ayat ini akan di tampilkan di layar utama anda')
-        setFavoriteAyat(res.success)
-      }else{
-        res=await deleteFavoriteAyatAction({
+      } else {
+        res = await deleteFavoriteAyatAction({
           userId,
-          ayatKey:ayat.nomorAyat,
-        })
-        if(res.error){
-          toast.error(res.error)
+          ayatKey: ayat.nomorAyat,
+        });
+        
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          toast.success('Ayat berhasil dihapus dari favorit');
+          setFavoriteAyat(false);
         }
-        setFavoriteAyat(!res.success)
       }
-      setIsLoadingFavorite(false)
+      
+      setIsLoadingFavorite(false);
       return;
     }
-    toast.error('Maaf login dulu yaa')
+    toast.error('Silakan login terlebih dahulu');
   };
 
   return (
@@ -110,7 +131,7 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite, hasNote }: AyatP
       <CardHeader>
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-emerald-700 flex justify-center items-center gap-2">
-            Ayat {ayat.nomorAyat}{' '}
+            Ayat {ayat.nomorAyat}
             {favoriteAyat && <div className="size-2 rounded-full bg-pink-600" />}
           </h3>
           <div className="flex items-center gap-2">
@@ -175,16 +196,19 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite, hasNote }: AyatP
           <p className="italic text-sm text-right text-gray-600">{ayat.teksLatin}</p>
         </div>
         <p className="sm:text-base text-sm text-gray-800 mb-3">{ayat.teksIndonesia}</p>
-        <AyatNotes
-          userId={userId!}
-          ayatKey={ayat.nomorAyat}
-          surah_number={surat_number}
-          arabic={ayat.teksArab}
-          terjemahan={ayat.teksIndonesia}
-          tafsir={tafsir?.teks!}
-          showNotes={showNotes}
-          setShowNotes={setShowNotes}
-        />
+        {userId && (
+          <AyatNotes
+            userId={userId}
+            ayatKey={ayat.nomorAyat}
+            surah_number={surat_number}
+            arabic={ayat.teksArab}
+            terjemahan={ayat.teksIndonesia}
+            tafsir={tafsir?.teks!}
+            showNotes={showNotes}
+            setShowNotes={setShowNotes}
+            noteData={noteData}
+          />
+        )}
         {showTafsir && tafsir && (
           <div className="p-3 border-l-4 border-emerald-500 bg-emerald-50 rounded">
             <p className="text-sm text-gray-700">{tafsir.teks}</p>
