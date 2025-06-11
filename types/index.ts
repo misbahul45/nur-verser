@@ -1,15 +1,3 @@
-type Verse = {
-  arabic: string;
-  transliteration: string;
-  translation: string;
-};
-
-export interface PasswordStrengthText {
-    text: string
-    color: string
-}
-
-
 export interface User {
   id: string;
   name?: string;
@@ -44,11 +32,6 @@ export interface Session {
   expires: string;
 }
 
-export interface VerificationToken {
-  identifier: string;
-  token: string;
-  expires: string;
-}
 
 export interface MemorizationProgress {
   id: string;

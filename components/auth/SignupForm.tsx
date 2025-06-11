@@ -16,38 +16,18 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import Link from 'next/link'
-import { PasswordStrengthText } from '@/types'
 import { toast } from 'sonner'
 import { signupAction } from '@/actions/auth.actions'
-import { signIn } from 'next-auth/react'
-
-const formSchema = z.object({
-  fullName: z.string().min(2, {
-    message: "Full name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-    message: "Password must contain at least one uppercase letter, one lowercase letter, and one number.",
-  }),
-  confirmPassword: z.string(),
-  agreeTerms: z.boolean().refine((value) => value === true, {
-    message: "You must accept the terms and conditions.",
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-})
+import { SignupSchema } from '@/schemas/auth.schema'
+import { useRouter } from 'next/navigation'
 
 export default function SignupForm() {
+  const router=useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof SignupSchema>>({
+    resolver: zodResolver(SignupSchema),
     mode: "onChange",
     defaultValues: {
       fullName: '',
@@ -58,39 +38,19 @@ export default function SignupForm() {
     },
   })
 
-  const passwordStrength = (password: string): number => {
-    let strength = 0
-    if (password.length >= 8) strength++
-    if (/[A-Z]/.test(password)) strength++
-    if (/[0-9]/.test(password)) strength++
-    if (/[^A-Za-z0-9]/.test(password)) strength++
-    return strength
-  }
 
-  const getPasswordStrengthText = (strength: number): PasswordStrengthText => {
-    switch (strength) {
-      case 0: case 1: return { text: 'Weak', color: 'text-red-500' }
-      case 2: return { text: 'Fair', color: 'text-yellow-500' }
-      case 3: return { text: 'Good', color: 'text-blue-500' }
-      case 4: return { text: 'Strong', color: 'text-green-500' }
-      default: return { text: '', color: '' }
-    }
-  }
-
-  const password = form.watch('password')
-  const strength = passwordStrength(password)
-  const strengthInfo = getPasswordStrengthText(strength)
-
-  const onSubmit = async(data: z.infer<typeof formSchema>) => {
+  const onSubmit = async(data: z.infer<typeof SignupSchema>) => {
     try {
-      await signupAction(data)
-      await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      })
-      toast.success('Sign up successful')
-      form.reset()
+      const res=await signupAction(data)
+      if(res.success){
+        toast.success('Sign up successful')
+        form.reset()
+        router.push('/signin')
+      }else{
+        throw new Error(
+          res.error
+        )
+      }
     } catch (error) {
       toast.error((error as Error).message)
     }
@@ -162,25 +122,6 @@ export default function SignupForm() {
                   </div>
                 </FormControl>
                 <FormMessage className="text-red-500 text-sm" />
-                {password && (
-                  <div className="mt-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full transition-all duration-300 ${
-                            strength === 1 ? 'bg-red-500 w-1/4' :
-                            strength === 2 ? 'bg-yellow-500 w-2/4' :
-                            strength === 3 ? 'bg-blue-500 w-3/4' :
-                            strength === 4 ? 'bg-green-500 w-full' : 'w-0'
-                          }`}
-                        ></div>
-                      </div>
-                      <span className={`text-xs font-medium ${strengthInfo.color}`}>
-                        {strengthInfo.text}
-                      </span>
-                    </div>
-                  </div>
-                )}
               </FormItem>
             )}
           />
@@ -208,19 +149,7 @@ export default function SignupForm() {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage />
-                {field.value && (
-                  <div className="mt-2 flex items-center space-x-2">
-                    {field.value === password ? (
-                      <>
-                        <Check className="w-4 h-4 text-green-500" />
-                        <span className="text-xs text-green-600">Passwords match</span>
-                      </>
-                    ) : (
-                      <span className="text-xs text-red-500">Passwords do not match</span>
-                    )}
-                  </div>
-                )}
+                <FormMessage className='text-red-500 text-sm' />
               </FormItem>
             )}
           />

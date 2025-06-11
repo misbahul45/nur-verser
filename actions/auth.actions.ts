@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs"
 import { signIn, signOut } from "@/auth"
 import prisma from "@/lib/prisma"
 import { ActionResult } from "@/types"
+import { revalidatePath } from "next/cache"
 
 
 export const signupAction = async (data: z.infer<typeof SignupSchema>): Promise<ActionResult> => {
@@ -26,12 +27,6 @@ export const signupAction = async (data: z.infer<typeof SignupSchema>): Promise<
         email: validatedData.email,
         password: hashedPassword,
       },
-    })
-
-    const result = await signIn('credentials', {
-      email: validatedData.email,
-      password: validatedData.password,
-      redirect: false
     })
 
     return { success: true, data: { userId: user.id } }
@@ -59,7 +54,7 @@ export const signinAction = async (data: z.infer<typeof SigninSchema>): Promise<
     })
 
     if (!user) {
-      return { success: false, error: "Invalid email or password" }
+      return { success: false, error: "User not found" }
     }
 
     const isMatch = await bcrypt.compare(validatedData.password, user.password as string)
@@ -67,11 +62,13 @@ export const signinAction = async (data: z.infer<typeof SigninSchema>): Promise<
       return { success: false, error: "Invalid email or password" }
     }
 
-    const result = await signIn('credentials', {
+    await signIn('credentials', {
       email: validatedData.email,
       password: validatedData.password,
       redirect: false
     })
+
+    revalidatePath('/')
 
     return { success: true, data: { userId: user.id } }
     
@@ -95,9 +92,8 @@ export const signinAction = async (data: z.infer<typeof SigninSchema>): Promise<
 
 export const signoutAction = async (): Promise<ActionResult> => {
   try {
-    await signOut({
-      redirectTo:'/signin'
-    })
+    await signOut({redirect:false})
+    revalidatePath('/')
     return { success: true }
   } catch (error) {
     return { success: false, error: "An error occurred during sign out" }

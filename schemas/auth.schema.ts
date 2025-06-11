@@ -20,5 +20,5 @@ export const SigninSchema = z.object({
   password: z
     .string()
     .min(8, { message: 'Password must be at least 6 characters' }),
-  rememberMe: z.boolean().default(false),
+  rememberMe: z.boolean(),
 })

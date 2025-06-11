@@ -137,7 +137,7 @@ const Page = async ({ params }: PageProps) => {
                       </CardContent>
                     </Card>
                   }>
-                    <Ayat isFavorite={isFavorite} surat_number={parseInt(nomor)} ayat={ayat} tafsir={ayatTafsir} userId={userId ?? ""} />
+                    <Ayat isFavorite={isFavorite} surat_number={parseInt(nomor)} ayat={ayat} tafsir={ayatTafsir} userId={userId ?? ""} hasNote={true} />
                   </Suspense>
                 );
               })}

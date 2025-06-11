@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useRouter, usePathname } from 'next/navigation';
 import { signoutAction } from '@/actions/auth.actions';
+import { toast } from 'sonner';
 
 const AppNavbar = ({ user = null }: { user: any | null }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -87,18 +88,19 @@ const AppNavbar = ({ user = null }: { user: any | null }) => {
                   >
                     Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={async () => {
+                  <DropdownMenuItem asChild>
+                    <Button
+                       onClick={async () => {
                       try {
                         await signoutAction();
                         router.push('/signin');
                       } catch (error) {
-                        console.error('Sign out failed:', error);
+                        toast.error('signout failed')
                       }
                     }}
-                    className="cursor-pointer hover:bg-emerald-50"
-                  >
-                    Sign Out
+                    variant={'destructive'} className="cursor-pointer w-full bg-red-200/50 hover:bg-red-200/80 text-red-500">
+                      Sign Out
+                    </Button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -147,20 +149,20 @@ const AppNavbar = ({ user = null }: { user: any | null }) => {
                 >
                   <span>Dashboard</span>
                 </Link>
-                <button
+                <Button
+                  variant="destructive"
                   onClick={async () => {
                     try {
                       await signoutAction();
                       setIsMobileMenuOpen(false);
-                      router.push('/signin');
                     } catch (error) {
-                      console.error('Sign out failed:', error);
+                      toast.error('signout failde')
                     }
                   }}
                   className="flex items-center space-x-3 w-full px-4 py-2 rounded-lg text-sm font-medium text-emerald-100 hover:text-white hover:bg-white/10 transition-all duration-300"
                 >
                   <span>Sign Out</span>
-                </button>
+                </Button>
               </div>
             )}
           </div>

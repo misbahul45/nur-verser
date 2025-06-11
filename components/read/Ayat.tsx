@@ -15,13 +15,13 @@ interface AyatProps {
   tafsir: TafsirItem | null;
   userId?: string;
   isFavorite:boolean;
+  hasNote:boolean;
 }
 
-const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite }: AyatProps) => {
+const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite, hasNote }: AyatProps) => {
   const [showTafsir, setShowTafsir] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [favoriteAyat, setFavoriteAyat] = useState(isFavorite);
-  const [notes, setNotes] = useState('');
   const [showNotes, setShowNotes] = useState(false);
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
 
@@ -78,9 +78,16 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite }: AyatProps) => 
       if(!favoriteAyat){
         res=await saveFavoriteAyatAction({
           userId,
-          ayatKey:ayat.nomorAyat,
-          surah_number: surat_number
+          ayahKey:ayat.nomorAyat,
+          surah_number: surat_number,
+          arabic:ayat.teksArab,
+          terjemahan:ayat.teksIndonesia,
+          tafsir:tafsir?.teks!
         })
+        if(res.error){
+          toast.error(res.error)
+        }
+        toast.success('Ayat ini akan di tampilkan di layar utama anda')
         setFavoriteAyat(res.success)
       }else{
         res=await deleteFavoriteAyatAction({
@@ -131,10 +138,10 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite }: AyatProps) => 
               onClick={() => setShowNotes(!showNotes)}
               aria-label="Toggle notes"
               className={`cursor-pointer hover:bg-yellow-50 ${
-                notes ? 'text-yellow-600' : 'text-gray-400'
+                hasNote ? 'text-yellow-600' : 'text-gray-400'
               }`}
             >
-              <StickyNote className={`w-5 h-5 ${notes ? 'fill-current' : ''}`} />
+              <StickyNote className={`w-5 h-5 ${hasNote ? 'fill-current' : ''}`} />
             </Button>
             <Button
               variant="ghost"

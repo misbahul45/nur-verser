@@ -19,25 +19,17 @@ import { Checkbox } from '@/components/ui/checkbox'
 import Link from 'next/link'
 import { signinAction } from '@/actions/auth.actions'
 import { toast } from 'sonner'
+import { SigninSchema } from '@/schemas/auth.schema'
 
-const formSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(1, {
-    message: "Password is required.",
-  }),
-  rememberMe: z.boolean().optional(),
-})
 
 export default function SigninForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.infer<typeof SigninSchema>>({
     mode: 'onChange',
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(SigninSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -45,7 +37,7 @@ export default function SigninForm() {
     },
   })
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof SigninSchema>) => {
     try {
       setIsLoading(true)
       
@@ -64,7 +56,6 @@ export default function SigninForm() {
         toast.error(result.error || 'Sign in failed')
       }
     } catch (error) {
-      console.error('Sign in error:', error)
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
