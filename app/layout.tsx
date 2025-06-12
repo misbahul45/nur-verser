@@ -67,7 +67,9 @@ export default async function RootLayout({
         <SessionProvider>
           <ClientWrapper>
               <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background to-muted/20">
-                <AppSidebar />
+                <Suspense fallback={null}>
+                  <AppSidebar />
+                </Suspense>
                 <div className="flex-1 flex flex-col w-full">
                   <Suspense fallback={null}>
                     <AppNavbar user={session?.user} />

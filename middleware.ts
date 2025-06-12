@@ -7,11 +7,11 @@ export function middleware(request: NextRequest, context: any) {
   return auth(async (req) => {
     const { nextUrl, auth } = req
     
-      const publicRoutes = [
+    const publicRoutes = [
       /^\/$/,
       /^\/signin$/,
       /^\/signup$/,
-      /^\/read(\/|$)/,
+      /^\/read$/,
       /^\/ai-chat$/,
     ];
 

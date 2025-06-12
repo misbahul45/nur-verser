@@ -1,12 +1,41 @@
-import { BarChart3, BookMarked, BookOpen, Home, MessageSquareText, Settings, Users, TrendingUp, Brain, MessageCircle, Calendar } from "lucide-react";
+import { Home, BookOpen, BookMarked, MessageSquareText, Users, BarChart3, Settings, Brain, MessageCircle, Heart, StickyNote, History, Target, Trophy, TrendingUp, CalendarDays } from 'lucide-react'
 
 export const menuItems = [
     { title: "Dashboard", icon: Home, path: "/dashboard" },
-    { title: "Read Quran", icon: BookOpen, path: "/read" },
-    { title: "Memorization", icon: BookMarked, path: "/memorize" },
-    { title: "Tafsir & AI", icon: MessageSquareText, path: "/tafsir" },
+    { 
+        title: "Read Quran", 
+        icon: BookOpen, 
+        path: "/read",
+        children: [
+            { title: "Al-Quran", icon: BookOpen, path: "/read" },
+            { title: "Favorites", icon: Heart, path: "/read/favorites" },
+            { title: "My Notes", icon: StickyNote, path: "/read/notes" },
+            { title: "Reading History", icon: History, path: "/read/history" }
+        ]
+    },
+    { 
+        title: "Memorization", 
+        icon: BookMarked, 
+        path: "/memorize",
+        children: [
+            { title: "Memorize", icon: BookMarked, path: "/memorize" },
+            { title: "Review", icon: Brain, path: "/memorize/review" },
+            { title: "Quiz", icon: Trophy, path: "/memorize/quiz" },
+            { title: "Targets", icon: Target, path: "/memorize/targets" }
+        ]
+    },
+    { title: "Tafsir & AI", icon: MessageSquareText, path: "/ai-chat" },
     { title: "Community", icon: Users, path: "/community" },
-    { title: "Progress", icon: BarChart3, path: "/progress" },
+    { 
+        title: "Progress", 
+        icon: BarChart3, 
+        path: "/progress",
+        children: [
+            { title: "Overview", icon: BarChart3, path: "/progress" },
+            { title: "Statistics", icon: TrendingUp, path: "/progress/stats" },
+            { title: "Learning History", icon: History, path: "/progress/history" }
+        ]
+    },
     { title: "Settings", icon: Settings, path: "/settings" },
 ]
 export const navigation =[
@@ -46,7 +75,7 @@ export  const features = [
       color: "text-amber-600"
     },
     {
-      icon: Calendar,
+      icon: CalendarDays,
       title: "Ayat Harian",
       description: "Mulai hari Anda dengan ayat Al-Qur'an pilihan, lengkap dengan refleksi dan makna yang menginspirasi.",
       highlights: ["Ayat pilihan setiap hari", "Refleksi mendalam", "Notifikasi pengingat"],

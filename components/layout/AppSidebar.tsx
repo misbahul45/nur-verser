@@ -1,14 +1,46 @@
 'use client'
-import React from 'react'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '../ui/sidebar'
+import React, { useState } from 'react'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarTrigger } from '../ui/sidebar'
 import { Button } from '../ui/button'
-import { User, Settings, LogOut } from 'lucide-react'
+import { User, Settings, LogOut, ChevronRight } from 'lucide-react'
 import { menuItems } from '@/constants'
 import { usePathname } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
+
+interface MenuItemChild {
+  title: string
+  path: string
+  icon?: React.ElementType
+}
+
+interface MenuItem {
+  title: string
+  path: string
+  icon: React.ElementType
+  children?: MenuItemChild[]
+}
 
 const AppSidebar = () => {
   const pathName = usePathname()
+  const [openItems, setOpenItems] = useState(new Set<string>())
+
+  const toggleItem = (title: string): void => {
+    const newOpenItems = new Set(openItems)
+    if (newOpenItems.has(title)) {
+      newOpenItems.delete(title)
+    } else {
+      newOpenItems.add(title)
+    }
+    setOpenItems(newOpenItems)
+  }
+
+  const isParentActive = (item: MenuItem): boolean => {
+    if (item.children) {
+      return item.children.some((child: MenuItemChild) => pathName === child.path) || pathName === item.path
+    }
+    return pathName === item.path
+  }
 
   return (
     <>
@@ -20,9 +52,7 @@ const AppSidebar = () => {
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md">
                   <span className="text-primary-foreground font-bold text-sm">QC</span>
                 </div>
-                <div>
-                  <span className="text-lg font-semibold text-gray-900">Nur Quran</span>
-                </div>
+                <span className="text-lg font-semibold text-gray-900">Nur Quran</span>
               </div>
               <div className="ml-auto md:hidden">
                 <SidebarTrigger className="hover:bg-gray-50 transition-colors" />
@@ -31,21 +61,65 @@ const AppSidebar = () => {
           </SidebarHeader>
           <SidebarContent className="px-4 py-4 bg-white">
             <SidebarMenu className="space-y-2">
-              {menuItems.map((item) => (
+              {menuItems.map((item: MenuItem) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathName === item.path}
-                    tooltip={item.title}
-                    className="group relative overflow-hidden hover:bg-gray-50 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-r-2 data-[state=active]:border-primary rounded-lg"
-                  >
-                    <a href={item.path} className="flex items-center gap-3 px-3 py-2.5 w-full">
-                      <item.icon
-                        className={`h-5 w-5 transition-colors ${pathName === item.path ? 'text-primary' : 'text-gray-500'}`}
-                      />
-                      <span className="font-medium text-gray-700 data-[state=active]:text-primary">{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
+                  {item.children ? (
+                    <Collapsible open={openItems.has(item.title)} onOpenChange={() => toggleItem(item.title)}>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          isActive={isParentActive(item)}
+                          tooltip={item.title}
+                          className="group relative overflow-hidden hover:bg-gray-50 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-r-2 data-[state=active]:border-primary rounded-lg"
+                        >
+                          <div className="flex items-center gap-3 px-3 py-2.5 w-full">
+                            <item.icon
+                              className={`h-5 w-5 transition-colors ${isParentActive(item) ? 'text-primary' : 'text-gray-500'}`}
+                            />
+                            <span className="font-medium text-gray-700">{item.title}</span>
+                            <ChevronRight
+                              className={`ml-auto h-4 w-4 transition-transform ${openItems.has(item.title) ? 'rotate-90' : ''}`}
+                            />
+                          </div>
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.children.map((child: MenuItemChild) => (
+                            <SidebarMenuSubItem key={child.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={pathName === child.path}
+                                className="hover:bg-gray-50 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg"
+                              >
+                                <a href={child.path} className="flex items-center gap-3 px-6 py-2 w-full">
+                                  {child.icon && (
+                                    <child.icon
+                                      className={`h-4 w-4 transition-colors ${pathName === child.path ? 'text-primary' : 'text-gray-500'}`}
+                                    />
+                                  )}
+                                  <span className="text-sm text-gray-700">{child.title}</span>
+                                </a>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ) : (
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathName === item.path}
+                      tooltip={item.title}
+                      className="group relative overflow-hidden hover:bg-gray-50 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-r-2 data-[state=active]:border-primary rounded-lg"
+                    >
+                      <a href={item.path} className="flex items-center gap-3 px-3 py-2.5 w-full">
+                        <item.icon
+                          className={`h-5 w-5 transition-colors ${pathName === item.path ? 'text-primary' : 'text-gray-500'}`}
+                        />
+                        <span className="font-medium text-gray-700">{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
