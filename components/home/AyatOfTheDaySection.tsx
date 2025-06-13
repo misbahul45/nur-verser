@@ -33,6 +33,7 @@ const AyatOfTheDay: React.FC<AyatOfTheDayProps> = ({
     }
   };
 
+
   return (
     <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 border-0 shadow-xl rounded-3xl">
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/5 to-teal-400/5" />
@@ -41,7 +42,7 @@ const AyatOfTheDay: React.FC<AyatOfTheDayProps> = ({
         <div className="absolute inset-0 bg-gradient-to-bl from-emerald-300 to-transparent rounded-full transform rotate-12 scale-150" />
       </div>
 
-      <CardContent className="relative z-10 p-8 md:p-12">
+      <CardContent className="relative z-10 p-4 sm:p-6 md:p-9 lg::p-12">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -83,7 +84,7 @@ const AyatOfTheDay: React.FC<AyatOfTheDayProps> = ({
             <div className="flex flex-wrap gap-3">
               <Button
                 onClick={() => setShowTafsir(!showTafsir)}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white p-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
                 {showTafsir ? 'Hide Tafsir' : 'Read Tafsir'}
@@ -93,7 +94,7 @@ const AyatOfTheDay: React.FC<AyatOfTheDayProps> = ({
                 variant="outline"
                 onClick={handlePlayAudio}
                 disabled={isPlaying}
-                className="border-emerald-200 bg-white/80 hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 px-6 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                className="border-emerald-200 bg-white/80 hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 md:p-6 p-3 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
               >
                 {isPlaying ? (
                   <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
