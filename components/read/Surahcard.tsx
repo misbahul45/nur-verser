@@ -91,7 +91,7 @@ const SurahCard = ({ surah }: { surah: SurahTypeList }) => {
 
   const onSubmit = async (e: React.FormEvent) => { 
     e.preventDefault();
-    const res = await upsertReadingHistoryAction({
+    await upsertReadingHistoryAction({
       surahNumber: surah.nomor,
       surahName: surah.namaLatin,
       timestamp: new Date()
