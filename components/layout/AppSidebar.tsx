@@ -7,6 +7,8 @@ import { menuItems } from '@/constants'
 import { usePathname } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
+import { UserSession } from '@/types'
+import Link from 'next/link'
 
 interface MenuItemChild {
   title: string
@@ -18,10 +20,10 @@ interface MenuItem {
   title: string
   path: string
   icon: React.ElementType
-  children?: MenuItemChild[]
+  children?: MenuItemChild[];
 }
 
-const AppSidebar = () => {
+const AppSidebar = ({ user }:{ user?:any }) => {
   const pathName = usePathname()
   const [openItems, setOpenItems] = useState(new Set<string>())
 
@@ -127,32 +129,46 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter className="border-t border-gray-200 p-4 bg-white">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="w-full flex items-center gap-3 justify-start p-3 hover:bg-gray-50 transition-all duration-200 rounded-lg text-gray-700"
-                >
-                  <User className="h-5 w-5 text-gray-500" />
-                  <span className="font-medium">Profile</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 shadow-lg border border-gray-200">
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <User className="h-4 w-4" />
-                  <span>View Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <Settings className="h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors">
-                  <LogOut className="h-4 w-4" />
-                  <span>Sign Out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              {user?.id?(
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="w-full flex items-center gap-3 justify-start p-3 hover:bg-gray-50 transition-all duration-200 rounded-lg text-gray-700"
+                    >
+                      <User className="h-5 w-5 text-gray-500" />
+                      <span className="font-medium">Profile</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 shadow-lg border border-gray-200">
+                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                      <User className="h-4 w-4" />
+                      <span>View Profile</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors">
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ):(
+                <div className="flex w-full">
+                  <Button
+                    className='w-full cursor-pointer'
+                    asChild
+                  >
+                    <Link href={'/signin'}>
+                        <User size={16} className='font-bold text-white' />
+                        <span className="font-medium">Login</span>
+                    </Link>
+                  </Button>
+                </div>
+              )}
           </SidebarFooter>
         </Sidebar>
     </div>
