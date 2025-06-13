@@ -10,6 +10,7 @@ import { deleteFavoriteAyatAction, saveFavoriteAyatAction, getNoteAyatAction } f
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { ActionResult } from "@/types"
+import { AyahNotes } from '@prisma/client';
 
 interface AyatProps {
   ayat: AyatType;
@@ -30,11 +31,11 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite }: AyatProps) => 
   const selectedReciter = audioContext?.selectedReciter ?? '01';
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const { data: noteData } = useQuery<ActionResult, Error>({
+  const { data: noteData } = useQuery<ActionResult<any>, Error>({
     queryKey: ['notes', ayat.nomorAyat, surat_number, userId],
-    queryFn: ({ queryKey }) => {
+    queryFn: async ({ queryKey }) => {
       const [, ayatKeyParam, surahNumberParam, userIdParam] = queryKey as [string, number, number, string];
-      return getNoteAyatAction({
+      return await getNoteAyatAction({
         ayatKey: ayatKeyParam,
         surah_number: surahNumberParam,
         userId: userIdParam,
@@ -42,8 +43,9 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite }: AyatProps) => 
     },
     enabled: !!userId,
   });
+  
 
-  const hasNote = Boolean(noteData?.data?.note);
+  const hasNote = Boolean(noteData?.data);
 
   useEffect(() => {
     if (audioRef.current) {

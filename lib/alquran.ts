@@ -8,7 +8,7 @@ function apiUrl(path: string) {
 }
 
 
-export async function fetchSuratList(): Promise<QuranApiResponse<SurahTypeList>> {
+export async function fetchSuratList(): Promise<QuranApiResponse<SurahTypeList[]>> {
   await sleep()
   const res = await fetch(apiUrl('/surat'));
   if (!res.ok) throw new Error('Gagal mengambil daftar surat');

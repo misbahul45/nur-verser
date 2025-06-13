@@ -5,7 +5,8 @@ import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { SurahTypeList } from "@/types";
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
+import { useRouter } from 'next/navigation';
+import { upsertReadingHistoryAction } from "@/actions/read.action";
 
 const qariList = [
   { id: '01', name: 'Abdullah Al-Juhany' },
@@ -22,9 +23,11 @@ const SurahCard = ({ surah }: { surah: SurahTypeList }) => {
   const [selectedQari, setSelectedQari] = useState('05');
   const [showQariDropdown, setShowQariDropdown] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const router = useRouter();
 
   const handlePlayPause = () => {
     const audioUrl = surah.audioFull?.[selectedQari];
+    
     if (!audioUrl) return;
 
     if (audioRef.current && audioRef.current.src === audioUrl) {
@@ -85,6 +88,19 @@ const SurahCard = ({ surah }: { surah: SurahTypeList }) => {
   }, []);
 
   const currentQari = qariList.find(q => q.id === selectedQari);
+
+  const onSubmit = async (e: React.FormEvent) => { 
+    e.preventDefault();
+    const res = await upsertReadingHistoryAction({
+      surahNumber: surah.nomor,
+      surahName: surah.namaLatin,
+      timestamp: new Date()
+    });
+
+    if (res.success) { 
+      router.push(`/read/${surah.nomor}`); 
+    }
+  };
 
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl overflow-hidden">
@@ -204,31 +220,31 @@ const SurahCard = ({ surah }: { surah: SurahTypeList }) => {
           </div>
         )}
 
-        <Button
+        <form onSubmit={onSubmit}>
+          <Button
             variant="outline"
-            asChild
-            className="mt-4 block ml-auto rounded-lg border-emerald-200 bg-white text-emerald-600 text-sm font-semibold hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition-colors duration-200 px-4 py-2"
-        >
-        <Link href={`/read/${surah.nomor}`}>
+            type="submit"
+            className="mt-4 block ml-auto rounded-lg cursor-pointer border-emerald-200 bg-white text-emerald-600 text-sm font-semibold hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition-colors duration-200 px-4 py-2"
+          >
             Baca {surah.namaLatin}
-        </Link>
-        </Button>
+          </Button>
+        </form>
       </CardContent>
 
-     {showDescription && (
+      {showDescription && (
         <CardFooter>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 animate-in slide-in-from-top-2 duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-3 h-3 text-white" />
-                </div>
-                <h4 className="text-sm font-semibold text-gray-800">Deskripsi</h4>
-                </div>
-                <div 
-                className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: surah.deskripsi }}
-                />
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 animate-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-3 h-3 text-white" />
+              </div>
+              <h4 className="text-sm font-semibold text-gray-800">Deskripsi</h4>
             </div>
+            <div 
+              className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{ __html: surah.deskripsi }}
+            />
+          </div>
         </CardFooter>
       )}
     </Card>

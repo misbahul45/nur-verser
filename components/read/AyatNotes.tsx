@@ -17,7 +17,7 @@ interface AyatNotesProps {
   arabic: string;
   terjemahan: string;
   tafsir: string;
-  noteData?: ActionResult;
+  noteData?: any;
 }
 
 const AyatNotes: React.FC<AyatNotesProps> = ({

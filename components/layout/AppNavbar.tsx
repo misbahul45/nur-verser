@@ -13,9 +13,9 @@ import {
 import { useRouter, usePathname } from 'next/navigation';
 import { signoutAction } from '@/actions/auth.actions';
 import { toast } from 'sonner';
+import { SidebarTrigger } from '../ui/sidebar';
 
 const AppNavbar = ({ user = null }: { user: any | null }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -25,7 +25,6 @@ const AppNavbar = ({ user = null }: { user: any | null }) => {
         <Link
           key={item.path}
           href={item.path}
-          onClick={() => setIsMobileMenuOpen(false)}
           className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
             pathname === item.path || (pathname === '/' && item.path === '/')
               ? 'bg-white/20 text-white shadow-lg'
@@ -113,61 +112,11 @@ const AppNavbar = ({ user = null }: { user: any | null }) => {
                 <span>Sign In</span>
               </Link>
             )}
-
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden text-white hover:bg-white/10 p-1.5 rounded-md transition-all duration-300"
-              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            
+            <SidebarTrigger className="lg:hidden" />
           </div>
         </div>
       </div>
-
-      {isMobileMenuOpen && (
-        <div className="lg:hidden bg-emerald-800/95 border-t border-white/10 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-          <div className="px-3 py-2 space-y-1.5">
-            {navLinks}
-            {!user && (
-              <Link
-                href="/signin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium text-emerald-100 hover:text-white hover:bg-white/10 transition-all duration-300 border-t border-white/10"
-              >
-                <LogIn className="w-5 h-5" />
-                <span>Sign In</span>
-              </Link>
-            )}
-            {user && (
-              <div className="border-t border-white/10 pt-2">
-                <Link
-                  href="/dashboard"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium text-emerald-100 hover:text-white hover:bg-white/10 transition-all duration-300"
-                >
-                  <span>Dashboard</span>
-                </Link>
-                <Button
-                  variant="destructive"
-                  onClick={async () => {
-                    try {
-                      await signoutAction();
-                      setIsMobileMenuOpen(false);
-                    } catch (error) {
-                      toast.error('signout failde')
-                    }
-                  }}
-                  className="flex items-center space-x-3 w-full px-4 py-2 rounded-lg text-sm font-medium text-emerald-100 hover:text-white hover:bg-white/10 transition-all duration-300"
-                >
-                  <span>Sign Out</span>
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </nav>
   );
 };

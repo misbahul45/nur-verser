@@ -3,10 +3,13 @@ import LoaderQuran from "@/components/read/LoaderQuran";
 import { fetchSuratList } from "@/lib/alquran";
 import { BookOpen } from "lucide-react";
 import { Suspense } from "react"; 
+import type { SurahTypeList } from "@/types";
 
 const page = async () => {
   const res = await fetchSuratList();
-  const allSurat = Array.isArray(res.data) ? res.data : Object.values(res.data);
+  const allSurat: SurahTypeList[] = Array.isArray(res.data)
+    ? res.data as SurahTypeList[]
+    : Object.values(res.data) as SurahTypeList[];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">

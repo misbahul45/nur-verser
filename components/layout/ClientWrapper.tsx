@@ -8,21 +8,26 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import { SessionProvider } from 'next-auth/react'
+import { Session } from 'next-auth'
 
 interface ClientWrapperProps {
   children: ReactNode;
+  session?: Session | null;
 }
 
-export default function ClientWrapper({ children }: ClientWrapperProps) {
+export default function ClientWrapper({ children, session }: ClientWrapperProps) {
   const [queryClient] = useState(()=>new QueryClient())
   return (
-    <QueryClientProvider client={queryClient}>
-      <NuqsAdapter>
-        <SidebarProvider>
-          <Toaster position="top-center" />
-          {children}
-        </SidebarProvider>
-      </NuqsAdapter>
-    </QueryClientProvider>
+    <SessionProvider session={session}>
+      <QueryClientProvider client={queryClient}>
+        <NuqsAdapter>
+          <SidebarProvider>
+            <Toaster position="top-center" />
+            {children}
+          </SidebarProvider>
+        </NuqsAdapter>
+      </QueryClientProvider>
+    </SessionProvider>
   );
 }

@@ -17,16 +17,28 @@ model User {
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
 
+  // Auth relations
   accounts              Account[]
   sessions              Session[]
+  
+  // Learning relations
   memorizationProgress  MemorizationProgress[]
   learningHistory       LearningHistory[]
   favoriteAyahs         FavoriteAyah[]
+  ayahNotes             AyahNotes[]
+  learningTargets       LearningTarget[]
+  readingHistory        ReadingHistory[]
+  
+  // Community relations
   communityMemberships  CommunityMembership[]
+  
+  // AI & Quiz relations
   aiQueryHistory        AIQueryHistory[]
   quizzes               Quiz[]
-  learningTargets       LearningTarget[]
-  ayahNotes             AyahNotes[]
+  
+  // Notes relations
+  memorizationNotes     MemorizationNotes[]
+  learningTargetNotes   LearningTargetNotes[]
 
   @@map("users")
 }
@@ -62,118 +74,215 @@ model Session {
   @@map("sessions")
 }
 
-
 model MemorizationProgress {
-  id           String   @id @default(cuid())
-  userId       String
-  surah        String
-  ayah         Int
-  progress     Float    @default(0.0)
-  lastReviewed DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String    @id @default(cuid())
+  userId           String    @map("user_id")
+  surahNumber      Int       @map("surah_number")
+  totalAyahs       Int       @map("total_ayahs")
+  currentAyah      Int       @default(1) @map("current_ayah")
+  progress         Float     @default(0.0) 
+  isCompleted      Boolean   @default(false) @map("is_completed")
+  startDate        DateTime  @map("start_date")
+  endDate          DateTime? @map("end_date")
+  lastReviewed     DateTime? @map("last_reviewed")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes MemorizationNotes[]
+
+  @@unique([userId, surahNumber])
+  @@map("memorization_progress")
+}
+
+model MemorizationNotes {
+  id                     String   @id @default(cuid())
+  memorizationProgressId String   @map("memorization_progress_id")
+  userId                 String   @map("user_id")
+  note                   String
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  memorizationProgress MemorizationProgress @relation(fields: [memorizationProgressId], references: [id], onDelete: Cascade)
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("memorization_notes")
 }
 
 model LearningHistory {
   id        String   @id @default(cuid())
-  userId    String
-  surah     String
-  ayah      Int
+  userId    String   @map("user_id")
+  surahName String   @map("surah_name")
+  surahNumber Int    @map("surah_number")
+  ayahNumber Int     @map("ayah_number")
+  ayahKey   Int      @map("ayah_key")
   action    String
   timestamp DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("learning_history")
 }
 
 model FavoriteAyah {
-  id        String   @id @default(cuid())
-  userId    String
-  ayahKey   Int 
-  surah_number Int 
-  arabic  String
-  terjemahan String
-  tafsir String
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  ayahKey      Int      @map("ayah_key")
+  surahNumber  Int      @map("surah_number")
+  ayahNumber   Int      @map("ayah_number")
+  arabic       String
+  translation  String   @map("translation")
+  tafsir       String
+  createdAt    DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, ayahKey, surah_number])
+  @@unique([userId, ayahKey, surahNumber])
+  @@map("favorite_ayahs")
 }
 
 model AyahNotes {
   id           String   @id @default(cuid())
-  ayahKey      Int     
+  userId       String   @map("user_id")
+  ayahKey      Int      @map("ayah_key")
+  surahNumber  Int      @map("surah_number")
+  ayahNumber   Int      @map("ayah_number")
+  arabic       String
+  translation  String   @map("translation")
+  tafsir       String
   note         String
-  userId       String
-  surah_number Int   
-  arabic  String
-  terjemahan String
-  tafsir String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  @@unique([userId, ayahKey, surah_number])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ayahKey, surahNumber])
+  @@map("ayah_notes")
 }
 
-model DailyVerse {
-  id         String   @id @default(cuid())
-  ayahKey    Int
-  date       DateTime @unique
-  reflection String?
-}
+
 
 model AIQueryHistory {
   id        String   @id @default(cuid())
-  userId    String
+  userId    String   @map("user_id")
   query     String
   response  String
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_query_history")
 }
 
 model Quiz {
-  id        String   @id @default(cuid())
-  userId    String
-  ayahKey   Int
-  question  String
-  answer    String
-  correct   Boolean
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  ayahKey     Int      @map("ayah_key")
+  surahNumber Int      @map("surah_number")
+  ayahNumber  Int      @map("ayah_number")
+  question    String
+  answer      String
+  userAnswer  String?  @map("user_answer")
+  correct     Boolean
+  createdAt   DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("quizzes")
+}
+
+enum LearningType {
+  MEMORIZATION
+  RECITATION
+  READING
+  UNDERSTANDING
+}
+
+enum TargetStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
 }
 
 model LearningTarget {
-  id           String   @id @default(cuid())
-  userId       String
-  goalType     String
-  targetAyah   Int
-  achievedAyah Int      @default(0)
-  startDate    DateTime
-  endDate      DateTime
+  id            String       @id @default(cuid())
+  userId        String       @map("user_id")
+  title         String
+  description   String?
+  goalType      String       @map("goal_type")
+  targetAyah    Int          @map("target_ayah")
+  achievedAyah  Int          @default(0) @map("achieved_ayah")
+  startDate     DateTime     @map("start_date")
+  endDate       DateTime     @map("end_date")
+  learningType  LearningType @map("learning_type")
+  status        TargetStatus @default(ACTIVE)
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes LearningTargetNotes[]
+
+  @@map("learning_targets")
+}
+
+model LearningTargetNotes {
+  id               String   @id @default(cuid())
+  learningTargetId String   @map("learning_target_id")
+  userId           String   @map("user_id")
+  note             String
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  learningTarget LearningTarget @relation(fields: [learningTargetId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("learning_target_notes")
 }
 
 model Community {
-  id          String               @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   description String?
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   memberships CommunityMembership[]
+
+  @@map("communities")
+}
+
+enum MemberRole {
+  ADMIN
+  MODERATOR
+  MEMBER
 }
 
 model CommunityMembership {
   id          String     @id @default(cuid())
-  userId      String
-  communityId String
-  role        String     @default("member")
-  joinedAt    DateTime   @default(now())
+  userId      String     @map("user_id")
+  communityId String     @map("community_id")
+  role        MemberRole @default(MEMBER)
+  joinedAt    DateTime   @default(now()) @map("joined_at")
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, communityId])
+  @@map("community_memberships")
+}
+
+model ReadingHistory{
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  surahName String   @map("surah_name")
+  surahNumber Int    @map("surah_number")
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, surahNumber], name: "userId_surahNumber")
+  @@map("reading_history")
 }

@@ -39,10 +39,10 @@ export const menuItems = [
     { title: "Settings", icon: Settings, path: "/settings" },
 ]
 export const navigation =[
-    { path: "/read", label: "Baca", icon: BookOpen },
-    { path: "/memorize", label: "Hafal", icon: Brain },
-    { path: "/ai-chat", label: "Tanya AI", icon: MessageCircle },
-    { path: "/community", label: "Komunitas", icon: Users }
+    { path: "/read", label: "Read", icon: BookOpen },
+    { path: "/memorize", label: "Memorize", icon: Brain },
+    { path: "/ai-chat", label: "Tafsir & AI", icon: MessageCircle },
+    { path: "/community", label: "Community", icon: Users }
 ]
 
 export  const features = [

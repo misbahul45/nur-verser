@@ -80,7 +80,6 @@ const AudioPlayer = ({ audioUrls }: { audioUrls: { [key: string]: string } }) =>
 
       <Button
         onClick={togglePlayPause}
-        variant="outline"
         className="w-[120px] flex items-center gap-2 cursor-pointer"
         disabled={!audioUrls[selectedReciter]}
       >

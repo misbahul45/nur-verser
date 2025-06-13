@@ -2,14 +2,24 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { ActionResult } from "@/types";
-import { SaveFavoriteAyat, SaveFavoriteAyatSchema, DeleteFavoriteAyatSchema, GetFavoriteAyatSchema, DeleteFavoriteAyat, CreateNoteAyat, CreateNoteAyatSchema, GetFavoriteAyat, DeleteNoteAyatSchema, DeleteNoteAyat, GetNoteAyat, GetNoteAyatSchema } from "@/schemas/read.schema";
+import { SaveFavoriteAyat, SaveFavoriteAyatSchema, DeleteFavoriteAyatSchema, GetFavoriteAyatSchema, DeleteFavoriteAyat, CreateNoteAyat, CreateNoteAyatSchema, GetFavoriteAyat, DeleteNoteAyatSchema, DeleteNoteAyat, GetNoteAyat, GetNoteAyatSchema, upsertReadingHistory, UpsertReadingHistory, DeleteReadingHistory, deleteReadingHistorySchema } from "@/schemas/read.schema";
+import { getUser } from ".";
+import { redirect } from "next/navigation";
 
 export const saveFavoriteAyatAction = async (data: SaveFavoriteAyat): Promise<ActionResult> => {
   try {
     const validatedData = SaveFavoriteAyatSchema.parse(data);
 
     await prisma.favoriteAyah.create({
-      data: validatedData
+      data: {
+        userId: validatedData.userId,
+        ayahKey: validatedData.ayahKey,
+        surahNumber: validatedData.surah_number,
+        ayahNumber: validatedData.ayahKey, 
+        arabic: validatedData.arabic,         
+        translation: validatedData.terjemahan, 
+        tafsir: validatedData.tafsir           
+      }
     });
 
     return {
@@ -76,7 +86,7 @@ export const getFavoriteAyatAction = async (data: GetFavoriteAyat): Promise<Acti
         AND: [
           { ayahKey: validatedData.ayatKey },
           { userId: validatedData.userId },
-          { surah_number: validatedData.surah_number }
+          { surahNumber: validatedData.surah_number }
         ]
       }
     });
@@ -113,26 +123,27 @@ export const createNoteAyatAction = async (
 
     await prisma.ayahNotes.upsert({
       where: {
-        userId_ayahKey_surah_number: {
+        userId_ayahKey_surahNumber: {
           userId: validatedData.userId,
           ayahKey: validatedData.ayatKey,
-          surah_number: validatedData.surah_number,
+          surahNumber: validatedData.surah_number,
         },
       },
       update: {
         note: validatedData.note,
         tafsir: validatedData.tafsir,
-        terjemahan: validatedData.terjemahan,
+        translation: validatedData.terjemahan,
         arabic: validatedData.arabic,
       },
       create: {
         userId: validatedData.userId,
         note: validatedData.note,
         tafsir: validatedData.tafsir,
-        terjemahan: validatedData.terjemahan,
+        translation: validatedData.terjemahan,
         arabic: validatedData.arabic,
         ayahKey: validatedData.ayatKey,
-        surah_number: validatedData.surah_number,
+        surahNumber: validatedData.surah_number,
+        ayahNumber: validatedData.ayatKey, 
       },
     });
 
@@ -156,7 +167,6 @@ export const createNoteAyatAction = async (
 
 export const getNoteAyatAction = async (data: GetNoteAyat): Promise<ActionResult> => {
   try {
-    // Validate input
     const validatedData = GetNoteAyatSchema.parse(data);
 
     const note = await prisma.ayahNotes.findFirst({
@@ -164,7 +174,7 @@ export const getNoteAyatAction = async (data: GetNoteAyat): Promise<ActionResult
         AND: [
           { ayahKey: validatedData.ayatKey },
           { userId: validatedData.userId },
-          { surah_number: validatedData.surah_number }
+          { surahNumber: validatedData.surah_number }
         ]
       }
     });
@@ -203,7 +213,7 @@ export const deleteNoteAyatAction = async (data: DeleteNoteAyat): Promise<Action
         AND: [
           { ayahKey: validatedData.ayatKey },
           { userId: validatedData.userId },
-          { surah_number: validatedData.surah_number }
+          { surahNumber: validatedData.surah_number }
         ]
       }
     });
@@ -224,3 +234,99 @@ export const deleteNoteAyatAction = async (data: DeleteNoteAyat): Promise<Action
     };
   }
 };
+
+
+
+export const upsertReadingHistoryAction = async (data: UpsertReadingHistory): Promise<ActionResult> => {
+  try {
+    const user = await getUser();
+    if (!user || !user.id) {
+      return {
+        success: true,
+      };
+    }
+
+    const validatedData = upsertReadingHistory.parse(data);
+
+    // Try to find existing record first
+    const existingRecord = await prisma.readingHistory.findFirst({
+      where: {
+        userId: user.id,
+        surahNumber: validatedData.surahNumber,
+      },
+    });
+
+    if (existingRecord) {
+      await prisma.readingHistory.update({
+        where: {
+          id: existingRecord.id,
+        },
+        data: {
+          timestamp: validatedData.timestamp,
+        },
+      });
+    } else {
+      await prisma.readingHistory.create({
+        data: {
+          userId: user.id,
+          surahNumber: validatedData.surahNumber,
+          surahName: validatedData.surahName,
+          timestamp: validatedData.timestamp,
+        },
+      });
+    }
+    return{
+      success:true
+    }
+  } catch (error) {
+
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: error.errors.map((e) => e.message).join(", "),
+      };
+    }
+    
+    return {
+      success: false,
+      error: "An error occurred while upserting reading history",
+    };
+  }
+}
+
+export const deleteReadingHistoryAction = async (data: DeleteReadingHistory): Promise<ActionResult> => {
+  try {
+    const user = await getUser();
+    if (!user || !user.id) {
+      return {
+        success: false,
+        error: "User not authenticated"
+      };
+    }
+
+    const validatedData = deleteReadingHistorySchema.parse(data);
+
+        await prisma.readingHistory.deleteMany({
+          where: {
+            userId: user.id,
+            surahNumber: validatedData.surahNumber,
+          },
+        });
+    
+        return {
+          success: true,
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.errors.map((e) => e.message).join(", "),
+          };
+        }
+        return {
+          success: false,
+          error: "An error occurred while deleting reading history",
+        };
+      }
+    }
+

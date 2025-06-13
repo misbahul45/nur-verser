@@ -44,6 +44,16 @@ export const DeleteNoteAyatSchema = z.object({
   surah_number: z.number().int().positive(),
 });
 
+export const upsertReadingHistory = z.object({
+  surahName: z.string().min(1, "Surah name is required"),
+  surahNumber: z.number().int().positive(),
+  timestamp: z.date().default(new Date()),
+})
+
+export const deleteReadingHistorySchema = z.object({
+  surahNumber: z.number().int().positive(),
+})
+
 // Types via z.infer
 export type SaveFavoriteAyat = z.infer<typeof SaveFavoriteAyatSchema>;
 export type DeleteFavoriteAyat = z.infer<typeof DeleteFavoriteAyatSchema>;
@@ -51,4 +61,6 @@ export type GetFavoriteAyat = z.infer<typeof GetFavoriteAyatSchema>;
 export type CreateNoteAyat = z.infer<typeof CreateNoteAyatSchema>;
 export type DeleteNoteAyat = z.infer<typeof DeleteNoteAyatSchema>;
 export type GetNoteAyat = z.infer<typeof GetNoteAyatSchema>;
+export type UpsertReadingHistory = z.infer<typeof upsertReadingHistory>;
+export type DeleteReadingHistory = z.infer<typeof deleteReadingHistorySchema>;
 

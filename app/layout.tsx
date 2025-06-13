@@ -8,7 +8,7 @@ import { fetchSession } from '@/actions';
 import ClientWrapper from '@/components/layout/ClientWrapper';
 import ButtonToTop from '@/components/layout/ButtonToTop';
 import { Suspense } from 'react';
-import { SessionProvider } from 'next-auth/react'
+// Remove this import since we're now using SessionProvider in ClientWrapper
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -64,8 +64,7 @@ export default async function RootLayout({
   return (
     <html lang="id">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}>
-        <SessionProvider>
-          <ClientWrapper>
+        <ClientWrapper session={session}>
               <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background to-muted/20">
                 <Suspense fallback={null}>
                   <AppSidebar />
@@ -82,7 +81,6 @@ export default async function RootLayout({
               </div>
               <ButtonToTop />
           </ClientWrapper>
-        </SessionProvider>
       </body>
     </html>
   );

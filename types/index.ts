@@ -1,126 +1,3 @@
-export interface User {
-  id: string;
-  name?: string;
-  email?: string;
-  emailVerified?: string;
-  image?: string;
-  password?: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Account {
-  id: string;
-  userId: string;
-  type: string;
-  provider: string;
-  providerAccountId: string;
-  refresh_token?: string;
-  access_token?: string;
-  expires_at?: number;
-  token_type?: string;
-  scope?: string;
-  id_token?: string;
-  session_state?: string;
-}
-
-export interface Session {
-  id: string;
-  sessionToken: string;
-  userId: string;
-  expires: string;
-}
-
-
-export interface MemorizationProgress {
-  id: string;
-  userId: string;
-  surah: string;
-  ayah: number;
-  progress: number;
-  lastReviewed?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface LearningHistory {
-  id: string;
-  userId: string;
-  surah: string;
-  ayah: number;
-  action: string;
-  timestamp: string;
-}
-
-export interface FavoriteAyah {
-  id: string;
-  userId: string;
-  ayahKey: string;
-  createdAt: string;
-}
-
-export interface DailyVerse {
-  id: string;
-  ayahKey: string;
-  date: string;
-  reflection?: string;
-}
-
-export interface AIQueryHistory {
-  id: string;
-  userId: string;
-  query: string;
-  response: string;
-  createdAt: string;
-}
-
-export interface Quiz {
-  id: string;
-  userId: string;
-  ayahKey: string;
-  question: string;
-  answer: string;
-  correct: boolean;
-  createdAt: string;
-}
-
-export interface LearningTarget {
-  id: string;
-  userId: string;
-  goalType: string;
-  targetAyah: number;
-  achievedAyah: number;
-  startDate: string;
-  endDate: string;
-}
-
-export interface Community {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CommunityMembership {
-  id: string;
-  userId: string;
-  communityId: string;
-  role: string;
-  joinedAt: string;
-}
-
-export interface UserWithProgress extends User {
-  memorizationProgress: MemorizationProgress[];
-  learningHistory: LearningHistory[];
-  favoriteAyahs: FavoriteAyah[];
-  communityMemberships: CommunityMembership[];
-  aiQueryHistory: AIQueryHistory[];
-  quizzes: Quiz[];
-  learningTargets: LearningTarget[];
-}
-
 export interface SurahTypeList {
   nomor: number;
   nama: string;
@@ -210,8 +87,14 @@ export interface SurahData {
   userId? :string
 }
 
-export type ActionResult = {
-  success: boolean
-  error?: string
-  data?: any
+export type ActionResult<T = unknown> = {
+  success: boolean;
+  error?: string;
+  data?: T;
+};
+
+export interface UserSession{
+  id:string;
+  email:string;
+  name:string;
 }
