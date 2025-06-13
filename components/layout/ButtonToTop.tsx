@@ -27,7 +27,7 @@ const ButtonToTop = () => {
   return (
     <Button
       onClick={scrollToTop}
-      className='fixed bottom-5 right-8 bg-emerald-600 hover:bg-emerald-700 cursor-pointer text-white rounded-full shadow-lg p-2'
+      className='fixed bottom-5 right-8 bg-emerald-600 hover:bg-emerald-700 cursor-pointer text-white rounded-full shadow-lg p-2 z-40'
       size="icon"
     >
       <ChevronUp className="h-5 w-5" />
