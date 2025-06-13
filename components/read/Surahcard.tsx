@@ -96,10 +96,7 @@ const SurahCard = ({ surah }: { surah: SurahTypeList }) => {
       surahName: surah.namaLatin,
       timestamp: new Date()
     });
-
-    if (res.success) { 
       router.push(`/read/${surah.nomor}`); 
-    }
   };
 
   return (
