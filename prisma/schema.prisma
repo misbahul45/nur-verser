@@ -30,11 +30,12 @@ model User {
   readingHistory        ReadingHistory[]
   
   // Community relations
+  
   communityMemberships  CommunityMembership[]
   
   // AI & Quiz relations
-  aiQueryHistory        AIQueryHistory[]
   quizzes               Quiz[]
+  chatAis               ChatAi[]
   
   // Notes relations
   memorizationNotes     MemorizationNotes[]
@@ -161,19 +162,33 @@ model AyahNotes {
 }
 
 
-
-model AIQueryHistory {
-  id        String   @id @default(cuid())
+model ChatAi{
+  id        String      @id @default(cuid())
+  title     String?  
   userId    String   @map("user_id")
-  query     String
-  response  String
-  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ChatAIMessage[] 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("ai_query_history")
+  @@map("chats_ai")
 }
 
+model ChatAIMessage {
+  id        String      @id @default(cuid())
+  content   String  
+  role      TypeRoleAI   
+  chatId    String
+  chat      ChatAi     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("chats_ai_messages")
+}
+
+enum TypeRoleAI{
+  USER
+  ASSISTANT
+}
 model Quiz {
   id          String   @id @default(cuid())
   userId      String   @map("user_id")

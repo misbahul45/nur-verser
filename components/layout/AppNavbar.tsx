@@ -79,7 +79,7 @@ const AppNavbar = () => {
 
   return (
     <nav
-      className={`sticky top-0 left-0 w-full z-50 bg-gradient-to-r from-primary/90 via-primary to-primary/80 shadow-lg border-b border-primary/20 backdrop-blur-md ${navView.includes(pathname) ? "block" : "hidden"}`}
+      className={`sticky top-0 left-0 w-full z-50 bg-gradient-to-r from-primary/90 via-primary to-primary/80 shadow-lg border-b border-primary/20 backdrop-blur-md ${navView.includes(pathname) ? "block" : "lg:hidden"}`}
       aria-label="Main navigation"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
