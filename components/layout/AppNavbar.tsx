@@ -113,7 +113,7 @@ const AppNavbar = ({ user = null }: { user: any | null }) => {
               </Link>
             )}
             
-            <SidebarTrigger className="lg:hidden" />
+            <SidebarTrigger />
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarTrigger } from '../ui/sidebar'
 import { Button } from '../ui/button'
 import { User, Settings, LogOut, ChevronRight } from 'lucide-react'
@@ -42,10 +42,12 @@ const AppSidebar = () => {
     return pathName === item.path
   }
 
+  const isPath = useMemo(() => pathName === '/' || pathName === '/signin' || pathName === '/signup', [pathName]);
+
+
   return (
-    <>
-      {pathName !== '/' && pathName !== '/signin' && pathName !== '/signup' && (
-        <Sidebar className="border-r border-gray-200 bg-white shadow-sm">
+    <div className={`${isPath?'lg:hidden':'block'}`}>
+        <Sidebar className={`border-r border-gray-200 bg-white shadow-sm`}>
           <SidebarHeader className="border-b border-gray-200 bg-white">
             <div className="flex items-center px-6 py-4">
               <div className="flex items-center gap-3">
@@ -153,8 +155,7 @@ const AppSidebar = () => {
             </DropdownMenu>
           </SidebarFooter>
         </Sidebar>
-      )}
-    </>
+    </div>
   )
 }
 
