@@ -148,7 +148,7 @@ const Page = async ({ params }: PageProps) => {
             <CardContent className="p-8">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div className="flex-1">
-                  {surah.suratSebelumnya ? (
+                  {surah.suratSebelumnya && (
                     <Button variant="outline" asChild className="w-full sm:w-auto border-emerald-300 hover:bg-emerald-50 group">
                       <Link href={`/read/${surah.suratSebelumnya.nomor}`} className="flex items-center gap-2">
                         <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
@@ -158,8 +158,6 @@ const Page = async ({ params }: PageProps) => {
                         </div>
                       </Link>
                     </Button>
-                  ) : (
-                    <div></div>
                   )}
                 </div>
 

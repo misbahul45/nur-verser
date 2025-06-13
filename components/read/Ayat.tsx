@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { ActionResult } from "@/types"
 import { AyahNotes } from '@prisma/client';
+import { useSession } from 'next-auth/react';
 
 interface AyatProps {
   ayat: AyatType;
@@ -21,6 +22,7 @@ interface AyatProps {
 }
 
 const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite }: AyatProps) => {
+  const { data }=useSession();
   const [showTafsir, setShowTafsir] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [favoriteAyat, setFavoriteAyat] = useState(isFavorite);
@@ -158,7 +160,13 @@ const Ayat = ({ ayat, tafsir, userId, surat_number, isFavorite }: AyatProps) => 
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setShowNotes(!showNotes)}
+              onClick={() =>{
+                 if(!data?.user){
+                    toast.error('Silakan login terlebih dahulu');
+                 }else{
+                    setShowNotes(!showNotes)
+                 }
+              }}
               aria-label="Toggle notes"
               className={`cursor-pointer hover:bg-yellow-50 ${
                 hasNote ? 'text-yellow-600' : 'text-gray-400'

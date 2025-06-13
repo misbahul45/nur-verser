@@ -6,12 +6,13 @@ import type { NextRequest } from "next/server"
 export function middleware(request: NextRequest, context: any) {
   return auth(async (req) => {
     const { nextUrl, auth } = req
-    
+
     const publicRoutes = [
       /^\/$/,
       /^\/signin$/,
       /^\/signup$/,
       /^\/read$/,
+      /^\/read\/\d+$/, 
       /^\/ai-chat$/,
     ];
 

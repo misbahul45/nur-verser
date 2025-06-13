@@ -7,6 +7,7 @@ import { SurahTypeList } from "@/types";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { upsertReadingHistoryAction } from "@/actions/read.action";
+import { useSession } from "next-auth/react";
 
 const qariList = [
   { id: '01', name: 'Abdullah Al-Juhany' },
@@ -17,6 +18,7 @@ const qariList = [
 ];
 
 const SurahCard = ({ surah }: { surah: SurahTypeList }) => {
+  const session=useSession();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
@@ -91,11 +93,13 @@ const SurahCard = ({ surah }: { surah: SurahTypeList }) => {
 
   const onSubmit = async (e: React.FormEvent) => { 
     e.preventDefault();
-    await upsertReadingHistoryAction({
-      surahNumber: surah.nomor,
-      surahName: surah.namaLatin,
-      timestamp: new Date()
-    });
+      if(session.data?.user) {
+        await upsertReadingHistoryAction({
+          surahNumber: surah.nomor,
+          surahName: surah.namaLatin,
+          timestamp: new Date()
+        });
+      }
       router.push(`/read/${surah.nomor}`); 
   };
 

@@ -84,7 +84,7 @@ const AyatOfTheDay: React.FC<AyatOfTheDayProps> = ({
             <div className="flex flex-wrap gap-3">
               <Button
                 onClick={() => setShowTafsir(!showTafsir)}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white p-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white p-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 cursor-pointer"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
                 {showTafsir ? 'Hide Tafsir' : 'Read Tafsir'}
@@ -94,7 +94,7 @@ const AyatOfTheDay: React.FC<AyatOfTheDayProps> = ({
                 variant="outline"
                 onClick={handlePlayAudio}
                 disabled={isPlaying}
-                className="border-emerald-200 bg-white/80 hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 md:p-6 p-3 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                className="border-emerald-200 bg-white/80 hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 md:p-6 p-3 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 cursor-pointer"
               >
                 {isPlaying ? (
                   <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
