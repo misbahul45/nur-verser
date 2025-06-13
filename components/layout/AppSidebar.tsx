@@ -4,11 +4,13 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { Button } from '../ui/button'
 import { User, Settings, LogOut, ChevronRight } from 'lucide-react'
 import { menuItems } from '@/constants'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 import { UserSession } from '@/types'
 import Link from 'next/link'
+import { signoutAction } from '@/actions/auth.actions'
+import { toast } from 'sonner'
 
 interface MenuItemChild {
   title: string
@@ -24,8 +26,9 @@ interface MenuItem {
 }
 
 const AppSidebar = ({ user }:{ user?:any }) => {
-  const pathName = usePathname()
-  const [openItems, setOpenItems] = useState(new Set<string>())
+  const router=useRouter();
+  const pathName = usePathname();
+  const [openItems, setOpenItems] = useState(new Set<string>());
 
   const toggleItem = (title: string): void => {
     const newOpenItems = new Set(openItems)
@@ -54,12 +57,9 @@ const AppSidebar = ({ user }:{ user?:any }) => {
             <div className="flex items-center px-6 py-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md">
-                  <span className="text-primary-foreground font-bold text-sm">QC</span>
+                  <span className="text-primary-foreground font-bold text-sm">NQ</span>
                 </div>
                 <span className="text-lg font-semibold text-gray-900">Nur Quran</span>
-              </div>
-              <div className="ml-auto md:hidden">
-                <SidebarTrigger className="hover:bg-gray-50 transition-colors" />
               </div>
             </div>
           </SidebarHeader>
@@ -133,7 +133,7 @@ const AppSidebar = ({ user }:{ user?:any }) => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      variant="ghost"
+                      variant="ghost" 
                       className="w-full flex items-center gap-3 justify-start p-3 hover:bg-gray-50 transition-all duration-200 rounded-lg text-gray-700"
                     >
                       <User className="h-5 w-5 text-gray-500" />
@@ -141,16 +141,25 @@ const AppSidebar = ({ user }:{ user?:any }) => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 shadow-lg border border-gray-200">
-                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                      <User className="h-4 w-4" />
-                      <span>View Profile</span>
+                    <DropdownMenuItem asChild className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                      <Link href={'/profile'}>
+                        <User className="h-4 w-4" />
+                        <span>View Profile</span>
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
                       <Settings className="h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors">
+                    <DropdownMenuItem onClick={async() =>{
+                      try {
+                        await signoutAction();
+                        router.push('/signin');
+                      } catch (error) {
+                        toast.error('signout failed');
+                      }
+                    }} className="flex items-center gap-2 cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors">
                       <LogOut className="h-4 w-4" />
                       <span>Sign Out</span>
                     </DropdownMenuItem>

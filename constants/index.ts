@@ -3,47 +3,41 @@ import { Home, BookOpen, BookMarked, MessageSquareText, Users, BarChart3, Settin
 export const menuItems = [
     { title: "Dashboard", icon: Home, path: "/dashboard" },
     { 
-        title: "Read Quran", 
+        title: "Baca Quran", 
         icon: BookOpen, 
         path: "/read",
         children: [
-            { title: "Al-Quran", icon: BookOpen, path: "/read" },
-            { title: "Favorites", icon: Heart, path: "/read/favorites" },
-            { title: "My Notes", icon: StickyNote, path: "/read/notes" },
-            { title: "Reading History", icon: History, path: "/read/history" }
+            { title: "Al-Quran", icon: BookOpen, path: "/read", description: "Baca dan jelajahi teks lengkap Al-Quran" },
+            { title: "Favorit", icon: Heart, path: "/read/favorites", description: "Lihat ayat-ayat yang Anda tandai sebagai favorit" },
+            { title: "Catatan Saya", icon: StickyNote, path: "/read/notes", description: "Akses catatan pribadi Anda pada ayat-ayat" },
+            { title: "Riwayat Baca", icon: History, path: "/read/history", description: "Lacak progres dan riwayat bacaan Anda" }
         ]
     },
     { 
-        title: "Memorization", 
+        title: "Hafalan", 
         icon: BookMarked, 
         path: "/memorize",
         children: [
-            { title: "Memorize", icon: BookMarked, path: "/memorize" },
-            { title: "Review", icon: Brain, path: "/memorize/review" },
-            { title: "Quiz", icon: Trophy, path: "/memorize/quiz" },
-            { title: "Targets", icon: Target, path: "/memorize/targets" }
+            { title: "Hafal", icon: BookMarked, path: "/memorize", description: "Latihan menghafal ayat-ayat Al-Quran" },
+            { title: "Ulangi", icon: Brain, path: "/memorize/review", description: "Ulangi ayat-ayat yang sudah dihafal" },
+            { title: "Kuis", icon: Trophy, path: "/memorize/quiz", description: "Uji hafalan Anda dengan kuis" },
+            { title: "Target", icon: Target, path: "/memorize/targets", description: "Tetapkan dan lacak tujuan hafalan" }
         ]
     },
     { title: "Tafsir & AI", icon: MessageSquareText, path: "/ai-chat" },
-    { title: "Community", icon: Users, path: "/community" },
+    { title: "Komunitas", icon: Users, path: "/community" },
     { 
-        title: "Progress", 
+        title: "Progres", 
         icon: BarChart3, 
         path: "/progress",
         children: [
-            { title: "Overview", icon: BarChart3, path: "/progress" },
-            { title: "Statistics", icon: TrendingUp, path: "/progress/stats" },
-            { title: "Learning History", icon: History, path: "/progress/history" }
+            { title: "Ikhtisar", icon: BarChart3, path: "/progress", description: "Lihat progres pembelajaran Anda secara keseluruhan" },
+            { title: "Statistik", icon: TrendingUp, path: "/progress/stats", description: "Analisis statistik pembelajaran secara rinci" },
+            { title: "Riwayat Belajar", icon: History, path: "/progress/history", description: "Tinjau perjalanan pembelajaran Anda" }
         ]
     },
-    { title: "Settings", icon: Settings, path: "/settings" },
 ]
-export const navigation =[
-    { path: "/read", label: "Read", icon: BookOpen },
-    { path: "/memorize", label: "Memorize", icon: Brain },
-    { path: "/ai-chat", label: "Tafsir & AI", icon: MessageCircle },
-    { path: "/community", label: "Community", icon: Users }
-]
+
 
 export  const features = [
     {

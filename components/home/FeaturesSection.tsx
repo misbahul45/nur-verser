@@ -8,7 +8,7 @@ const FeaturesSection = () => {
     <section id="fitur" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-200">
+          <Badge className="mb-4 bg-primary/10 text-primary/80 hover:bg-emerald/20">
             ⚡ Fitur Unggulan
           </Badge>
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -27,7 +27,7 @@ const FeaturesSection = () => {
             >
               <CardHeader>
                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${
-                  feature.color.includes('emerald') ? 'bg-emerald-100' : 'bg-amber-100'
+                  feature.color.includes('emerald') ? 'bg-primary/10' : 'bg-primary-foreground'
                 }`}>
                   <feature.icon className={`h-8 w-8 ${feature.color}`} />
                 </div>

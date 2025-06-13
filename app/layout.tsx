@@ -71,7 +71,7 @@ export default async function RootLayout({
                 </Suspense>
                 <div className="flex-1 flex flex-col w-full">
                   <Suspense fallback={null}>
-                    <AppNavbar user={session?.user} />
+                    <AppNavbar />
                   </Suspense>
                   <main className="flex-1 w-full overflow-y-auto">
                     <div className="w-full px-2 pt-4 space-y-6">{children}</div>
